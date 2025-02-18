@@ -1,0 +1,7 @@
+INCLUDEPATH = $(FIRMWAREPATH)/include
+VPATH += :$(INCLUDEPATH)
+
+#Default stuff
+EXTRAINCDIRS += $(INCLUDEPATH)
+
+include $(INCLUDEPATH)/src/Makefile.src

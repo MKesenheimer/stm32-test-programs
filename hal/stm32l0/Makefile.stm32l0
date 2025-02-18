@@ -3,14 +3,8 @@ VPATH += :$(HALPATH)/stm32l0/Src
 SRC += stm32l0_hal.c \
        stm32l0xx_hal.c \
        stm32l0xx_hal_rcc.c \
-       stm32l0xx_hal_rcc_ex.c \
        stm32l0xx_hal_gpio.c \
        stm32l0xx_hal_uart.c \
-       stm32l0xx_hal_pwr.c \
-       stm32l0xx_hal_pwr_ex.c \
-       stm32l0xx_hal_cortex.c \
-       stm32l0xx_hal_cryp.c \
-       stm32l0xx_hal_cryp_ex.c
 
 EXTRAINCDIRS += $(HALPATH)/stm32l0 $(HALPATH)/stm32l0/Inc $(HALPATH)/stm32l0/Inc/Legacy $(HALPATH)/stm32l0/CMSIS
 
@@ -28,10 +22,6 @@ MCU_CLK = INT
 
 #Output Format = Binary for this target
 FORMAT = binary
-
-ifeq ($(MCU_CLK), INT)
-  CFLAGS += -DUSE_INTERNAL_CLK
-endif
 
 CFLAGS += -mthumb -fmessage-length=0 -ffunction-sections 
 CPPFLAGS += -mthumb -fmessage-length=0 -ffunction-sections 

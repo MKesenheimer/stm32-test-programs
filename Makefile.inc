@@ -1,7 +1,7 @@
 # Hey Emacs, this is a -*- makefile -*-
 #----------------------------------------------------------------------------
 #
-# Makefile for ChipWhisperer Victims
+# Makefile for STM32L0 projects
 #
 #----------------------------------------------------------------------------
 # On command line:
@@ -24,19 +24,8 @@
 # To rebuild project do "make clean" then "make all".
 #----------------------------------------------------------------------------
 
-ifeq ($(PLATFORM),)
-  -include Makefile.platform
-  ifeq ($(PLATFORM),)
-    PLATFORM=NONE
-  else
-    ${info using saved PLATFORM '$(PLATFORM)'}
-  endif
-endif
-
-include $(FIRMWAREPATH)/simpleserial/Makefile.simpleserial
 include $(FIRMWAREPATH)/hal/Makefile.hal
-
-include $(FIRMWAREPATH)/crypto/Makefile.crypto
+include $(FIRMWAREPATH)/include/Makefile.include
 
 #Debug - can be useful to see variables
 #${info '$(.VARIABLES)'}
@@ -106,7 +95,7 @@ CSTANDARD = -std=gnu99
 
 
 # Place -D or -U options here for C sources
-CDEFS += -DF_CPU=$(F_CPU)UL -DSS_VER_2_0=2 -DSS_VER_2_1=3 -DSS_VER_1_1=1 -DSS_VER_1_0=0
+CDEFS += -DF_CPU=$(F_CPU)UL
 
 
 # Place -D or -U options here for ASM sources
@@ -335,10 +324,10 @@ ALL_ASFLAGS = $(MCU_FLAGS) -I. -x assembler-with-cpp $(ASFLAGS)
 # Default target.
 all: 
 	@$(MAKE) --no-print-directory -O clean_objs .dep 
-	@$(MAKE) --no-print-directory -O begin gccversion build 
-	@$(MAKE) --no-print-directory -O sizeafter fastnote end
+	@$(MAKE) --no-print-directory -O gccversion build 
+	@$(MAKE) --no-print-directory -O sizeafter fastnote
 
-allquick: .dep begin gccversion build sizeafter end
+allquick: .dep gccversion build sizeafter
 
 # Change the build target to build a HEX file or a library.
 build: elf hex bin eep lss sym
@@ -353,18 +342,6 @@ lss: $(TARGET-PLAT).lss
 sym: $(TARGET-PLAT).sym
 LIBNAME=lib$(TARGET-PLAT).a
 lib: $(LIBNAME)
-
-
-begin:
-	@$(ECHO_BLANK)
-	@echo Welcome to another exciting ChipWhisperer target build!!
-
-end:
-	@echo   +--------------------------------------------------------
-	@echo   + Built for platform "$(PLTNAME)" with:
-	@echo   +      CRYPTO_TARGET  = "$(CRYPTO_TARGET)"
-	@echo   +      CRYPTO_OPTIONS = "$(CRYPTO_OPTIONS)"
-	@echo   +--------------------------------------------------------
 
 fastnote:
 	@echo   +--------------------------------------------------------

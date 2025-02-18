@@ -40,9 +40,6 @@ SRC += read-out-protection-test.c
 
 CRYPTO_TARGET=NONE
 
-#Add simpleserial project to build
-include ../simpleserial/Makefile.simpleserial
-
 FIRMWAREPATH = ../.
 include $(FIRMWAREPATH)/Makefile.inc
 

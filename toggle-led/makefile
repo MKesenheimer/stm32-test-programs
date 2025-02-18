@@ -1,7 +1,7 @@
 # Hey Emacs, this is a -*- makefile -*-
 #----------------------------------------------------------------------------
 #
-# Makefile for ChipWhisperer SimpleSerial-AES Program
+# Makefile for program to toggle a led
 #
 #----------------------------------------------------------------------------
 # On command line:
@@ -30,16 +30,13 @@
 
 # Target file name (without extension).
 # This is the name of the compiled .hex file.
-TARGET = simpleserial-glitch
+TARGET = toggle-led
 
 # List C source files here.
 # Header files (.h) are automatically pulled in.
-SRC += simpleserial-glitch.c
+SRC += toggle-led.c
 
 # -----------------------------------------------------------------------------
-
-#Add simpleserial project to build
-include simpleserial/Makefile.simpleserial
 
 FIRMWAREPATH = ../.
 include $(FIRMWAREPATH)/Makefile.inc

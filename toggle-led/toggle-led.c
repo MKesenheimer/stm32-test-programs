@@ -10,22 +10,11 @@ uint8_t infinite_loop() {
     led_ok(1);
     led_error(1);
 
-    // some fake variable
-    volatile uint8_t a = 0;
-
-    // external trigger logic
-    for (uint32_t b = 0; b < 1024; b++)
-        trigger_high();
-    trigger_low();
-
-    // should be an infinite loop
-    while(a != 2) {}
-
+    while(1) {}
     return 0;
 }
 
 int main(void) {
     platform_init();
-    trigger_setup();
     infinite_loop();
 }

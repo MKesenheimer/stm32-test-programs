@@ -1,0 +1,3 @@
+SRC += simpleserial.c
+VPATH += :$(FIRMWAREPATH)/simpleserial-glitch/simpleserial/
+EXTRAINCDIRS += $(FIRMWAREPATH)/simpleserial-glitch/simpleserial/

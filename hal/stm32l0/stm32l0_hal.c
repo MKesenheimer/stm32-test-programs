@@ -20,7 +20,6 @@ const uint8_t PLLMulTable[9] = {3U, 4U, 6U, 8U, 12U, 16U, 24U, 32U, 48U};
 
 void SystemInit(void) {
     //Init happens higher up
-    
 }
 
 void SystemCoreClockUpdate(void) {
@@ -88,49 +87,7 @@ void platform_init(void) {
     SCB->CPACR |= ((3UL << 20U)|(3UL << 22U));  /* set CP10 and CP11 Full Access */
 #endif
 
-// used for project "STM32L051Voltage Glitching Loop.ipynb"
-// TODO: try project "STM32L051Voltage Glitching Loop.ipynb" with init_clock() routine
-#if 0
-#define USE_INTERNAL_CLK
-#ifdef USE_INTERNAL_CLK
-     RCC_OscInitTypeDef RCC_OscInitStruct;
-     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
-     RCC_OscInitStruct.HSEState       = RCC_HSE_OFF;
-     RCC_OscInitStruct.HSIState       = RCC_HSI_ON;
-     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLL_NONE;
-     HAL_RCC_OscConfig(&RCC_OscInitStruct);
-
-     RCC_ClkInitTypeDef RCC_ClkInitStruct;
-     RCC_ClkInitStruct.ClockType      = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
-     RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_HSI;
-     RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;
-     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
-     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
-     uint32_t flash_latency = 0;
-     HAL_RCC_ClockConfig(&RCC_ClkInitStruct, flash_latency);
-#else
-    RCC_OscInitTypeDef RCC_OscInitStruct;
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_HSI;
-    RCC_OscInitStruct.HSEState       = RCC_HSE_BYPASS;
-    RCC_OscInitStruct.HSIState       = RCC_HSI_OFF;
-    RCC_OscInitStruct.PLL.PLLSource  = RCC_PLL_NONE;
-    HAL_RCC_OscConfig(&RCC_OscInitStruct);  
-    
-    RCC_ClkInitTypeDef RCC_ClkInitStruct;
-    RCC_ClkInitStruct.ClockType      = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
-    RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_HSE;
-    RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;
-    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
-    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
-    HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_ACR_LATENCY_5WS);
-    for (volatile int i = 0; i < 10000; i++); //firmware doesn't work unless this is here for some reason
-#endif
-#endif
-
-    // used for project "STM32L051Voltage Glitching Read-Out Protection.ipynb"
-#if 1
     init_clock();
-#endif
 
     // LED Pins init
     __HAL_RCC_GPIOC_CLK_ENABLE(); 
@@ -140,7 +97,6 @@ void platform_init(void) {
     GpioInit.Pull      = GPIO_NOPULL;
     GpioInit.Speed     = GPIO_SPEED_FREQ_HIGH;
     HAL_GPIO_Init(GPIOC, &GpioInit);
-
     HAL_GPIO_WritePin(GPIOC, GPIO_PIN_14, SET);
     HAL_GPIO_WritePin(GPIOC, GPIO_PIN_15, SET);
 
@@ -161,11 +117,7 @@ void init_uart(void) {
     HAL_GPIO_Init(GPIOA, &GpioInit);
 
     UartHandle.Instance        = USART1;
-  #if SS_VER==SS_VER_2_0
-  UartHandle.Init.BaudRate   = 230400;
-  #else
-  UartHandle.Init.BaudRate   = 38400;
-  #endif
+    UartHandle.Init.BaudRate   = 115200;
     UartHandle.Init.WordLength = UART_WORDLENGTH_8B;
     UartHandle.Init.StopBits   = UART_STOPBITS_1;
     UartHandle.Init.Parity     = UART_PARITY_NONE;
@@ -193,10 +145,12 @@ void trigger_low(void) {
 }
 
 void led_error(int val) {
+    // Pin 2
     HAL_GPIO_WritePin(GPIOC, GPIO_PIN_14, val);
 }
 
 void led_ok(int val) {
+    // Pin 3
     HAL_GPIO_WritePin(GPIOC, GPIO_PIN_15, val);
 }
 
