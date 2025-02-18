@@ -30,4 +30,10 @@ ASFLAGS += -mthumb -fmessage-length=0 -ffunction-sections
 CDEFS += -DSTM32L051x8 -Dstm32l0 -DSTM32 -DDEBUG -DSTM32L051xx
 CPPDEFS += -DSTM32L051x8 -Dstm32l0 -DSTM32 -DDEBUG -DSTM32L051xx
 
-LDFLAGS += --specs=nano.specs -T $(HALPATH)/stm32l0/stm32l051xx.ld -Wl,--gc-sections -lm
+ifeq ($(EXECTYPE),RAM)
+       EXECTYPEMSG = Assembling for execution in RAM.
+	LDFLAGS += --specs=nano.specs -T $(HALPATH)/stm32l0/stm32l051xx-ram.ld -Wl,--gc-sections -lm
+else
+       EXECTYPEMSG = Assembling for execution in flash.
+	LDFLAGS += --specs=nano.specs -T $(HALPATH)/stm32l0/stm32l051xx.ld -Wl,--gc-sections -lm
+endif

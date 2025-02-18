@@ -1,1 +1,1 @@
-void printf(const char *format, ...);
+void printf1(const char *format, ...);

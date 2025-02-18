@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "stm32l0xx_hal_cryp.h": "c"
+        "stm32l0xx_hal_cryp.h": "c",
+        "stm32l0xx_hal_flash_ex.h": "c"
     }
 }

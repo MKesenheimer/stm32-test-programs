@@ -30,24 +30,16 @@ HAL_StatusTypeDef erase_flash(void) {
         return status;
     }
 
-    HAL_FLASH_Lock();  // Lock the Flash to disable the flash control register access
+    // Lock the Flash to disable the flash control register access
+    HAL_FLASH_Lock();
     return HAL_OK;
 }
 
-uint8_t infinite_loop() {
-
-    // comes on after 3.6ms
-    led_ok(1);
-    led_error(0);
-
+uint8_t perform_flash_erase() {
     HAL_StatusTypeDef status = erase_flash();
+    printf1("status of erase_flash: %d\r\n", status);
 
-    if (status != HAL_OK) {
-        led_error(1);
-    }
-
-    while (1);
-    return 0;
+    return status;
 }
 
 int main(void) {
@@ -55,7 +47,12 @@ int main(void) {
     // RX = A10, Pin 20
     // TX = A9, Pin 19
     init_uart();
-    putch('c');
-    printf("test\n");
-    //infinite_loop();
+
+    // toggle status leds
+    led_ok(0);
+    led_error(1);
+
+    printf1("executing flash-erase\r\n");
+    perform_flash_erase();
+    while (1);
 }

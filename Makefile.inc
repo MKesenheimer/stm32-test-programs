@@ -494,6 +494,7 @@ $(OBJDIR)/%.o : %.cpp
 $(OBJDIR)/%.o : %.S
 	@$(ECHO_BLANK)
 	@echo $(MSG_ASSEMBLING) $<
+	@echo $(EXECTYPEMSG)
 	$(CC) -c $(ALL_ASFLAGS) $< -o $@
 
 

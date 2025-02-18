@@ -48,15 +48,15 @@ RAM (xrw)       : ORIGIN = 0x20000000, LENGTH = 8K
 /* Define output sections */
 SECTIONS
 {
-  /* The startup code goes first into FLASH */
+  /* The startup code goes first into RAM */
   .isr_vector :
   {
     . = ALIGN(4);
     KEEP(*(.isr_vector)) /* Startup code */
     . = ALIGN(4);
-  } >FLASH
+  } >RAM
 
-  /* The program code and other data goes into FLASH */
+  /* The program code and other data goes into RAM */
   .text :
   {
     . = ALIGN(4);
@@ -71,44 +71,44 @@ SECTIONS
 
     . = ALIGN(4);
     _etext = .;        /* define a global symbols at end of code */
-  } >FLASH
+  } >RAM
 
-  /* Constant data goes into FLASH */
+  /* Constant data goes into RAM */
   .rodata :
   {
     . = ALIGN(4);
     *(.rodata)         /* .rodata sections (constants, strings, etc.) */
     *(.rodata*)        /* .rodata* sections (constants, strings, etc.) */
     . = ALIGN(4);
-  } >FLASH
+  } >RAM
 
-  .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } >FLASH
+  .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } >RAM
   .ARM : {
     __exidx_start = .;
     *(.ARM.exidx*)
     __exidx_end = .;
-  } >FLASH
+  } >RAM
 
   .preinit_array     :
   {
     PROVIDE_HIDDEN (__preinit_array_start = .);
     KEEP (*(.preinit_array*))
     PROVIDE_HIDDEN (__preinit_array_end = .);
-  } >FLASH
+  } >RAM
   .init_array :
   {
     PROVIDE_HIDDEN (__init_array_start = .);
     KEEP (*(SORT(.init_array.*)))
     KEEP (*(.init_array*))
     PROVIDE_HIDDEN (__init_array_end = .);
-  } >FLASH
+  } >RAM
   .fini_array :
   {
     PROVIDE_HIDDEN (__fini_array_start = .);
     KEEP (*(SORT(.fini_array.*)))
     KEEP (*(.fini_array*))
     PROVIDE_HIDDEN (__fini_array_end = .);
-  } >FLASH
+  } >RAM
 
   /* used by the startup to initialize data */
   _sidata = LOADADDR(.data);
@@ -123,7 +123,7 @@ SECTIONS
 
     . = ALIGN(4);
     _edata = .;        /* define a global symbol at data end */
-  } >RAM AT> FLASH
+  } >RAM AT> RAM
 
   
   /* Uninitialized data section */
