@@ -13,3 +13,9 @@
 [submodule "hal/CMSIS"]
 	path = hal/CMSIS
 	url = https://github.com/ARM-software/CMSIS_5.git
+[submodule "hal/stm32l4/stm32l4"]
+	path = hal/stm32l4/stm32l4
+	url = https://github.com/STMicroelectronics/stm32l4xx-hal-driver.git
+[submodule "hal/stm32l4/cmsis"]
+	path = hal/stm32l4/cmsis
+	url = https://github.com/STMicroelectronics/cmsis-device-l4.git

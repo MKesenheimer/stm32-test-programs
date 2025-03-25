@@ -10,6 +10,10 @@
 #include "stm32f4_hal.h"
 #endif
 
+#ifdef STM32L4
+#include "stm32l4_hal.h"
+#endif
+
 uint8_t infinite_loop() {
 
     // comes on after 3.6ms

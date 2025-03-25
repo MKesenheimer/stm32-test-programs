@@ -1,9 +1,0 @@
-HALPATH = $(FIRMWAREPATH)/hal.bak
-VPATH += :$(HALPATH)
-
-#Default stuff
-EXTRAINCDIRS += $(HALPATH)
-
-include $(HALPATH)/$(HAL)/Makefile.$(HAL)
-
-CDEFS += -DHAL_TYPE=HAL_$(HAL) -DPLATFORM=$(PLATFORM)

@@ -1,78 +1,36 @@
 
-#include "stm32l0_hal.h"
-//#include "stm32l562xx.h"
-#include "stm32l0xx_hal_rcc.h"
-#include "stm32l0xx_hal_gpio.h"
-#include "stm32l0xx_hal_dma.h"
-#include "stm32l0xx_hal_uart.h"
-#include "stm32l0xx_hal_cryp.h"
+#include "stm32f4_hal.h"
+#include "stm32f4xx_hal_rcc.h"
+#include "stm32f4xx_hal_gpio.h"
+#include "stm32f4xx_hal_dma.h"
+#include "stm32f4xx_hal_uart.h"
+#include "stm32f4xx_hal_cryp.h"
 
 uint32_t SystemCoreClock = 16000000U;
-
-//const uint8_t  AHBPrescTable[16] = {0U, 0U, 0U, 0U, 0U, 0U, 0U, 0U, 1U, 2U, 3U, 4U, 6U, 7U, 8U, 9U};
-//const uint8_t  APBPrescTable[8] =  {0U, 0U, 0U, 0U, 1U, 2U, 3U, 4U};
-//const uint32_t MSIRangeTable[16] = {100000U,   200000U,   400000U,   800000U,  1000000U,  2000000U, \
-//                                    4000000U, 8000000U, 16000000U, 24000000U, 32000000U, 48000000U, \
-//                                    0U,       0U,       0U,        0U};  /* MISRAC-2012: 0U for unexpected value */
-//const uint8_t PLLMulTable[9] = {3U, 4U, 6U, 8U, 12U, 16U, 24U, 32U, 48U};
 
 void SystemInit(void) {
     //Init happens higher up
 }
 
-UART_HandleTypeDef UartHandle;
-
-// Change system clock to 32 MHz using internal 16 MHz R/C oscillator
-void init_clock() {
-    // Because the debugger switches PLL on, we may need to switch
-    // back to the HSI oscillator before we can configure the PLL
-
-    // Enable HSI oscillator
-    SET_BIT(RCC->CR, RCC_CR_HSION);
-
-    // Wait until HSI oscillator is ready
-    while(!READ_BIT(RCC->CR, RCC_CR_HSIRDY)) {}
-
-    // Switch to HSI oscillator
-    MODIFY_REG(RCC->CFGR, RCC_CFGR_SW, RCC_CFGR_SW_HSI);
-
-    // Wait until the switch is done
-    while ((RCC->CFGR & RCC_CFGR_SWS_Msk) != RCC_CFGR_SWS_HSI) {}
-
-    // Disable the PLL
-    CLEAR_BIT(RCC->CR, RCC_CR_PLLON);
-
-    // Wait until the PLL is fully stopped
-    while(READ_BIT(RCC->CR, RCC_CR_PLLRDY)) {}
-    
-    // Flash latency 1 wait state
-    SET_BIT(FLASH->ACR, FLASH_ACR_LATENCY);
-
-    // 32 MHz using the 16 MHz HSI oscillator multiply by 4 divide by 2
-    WRITE_REG(RCC->CFGR, RCC_CFGR_PLLSRC_HSI + RCC_CFGR_PLLMUL4 + RCC_CFGR_PLLDIV2);
-
-    // Enable PLL
-    SET_BIT(RCC->CR, RCC_CR_PLLON);
-
-    // Wait until PLL is ready
-    while(!READ_BIT(RCC->CR, RCC_CR_PLLRDY)) {}
-
-    // Select PLL as clock source
-    MODIFY_REG(RCC->CFGR, RCC_CFGR_SW, RCC_CFGR_SW_PLL);
-
-    // Update variable
-    SystemCoreClock = 32000000;
-
-    // Switch the MSI oscillator off
-    CLEAR_BIT(RCC->CR, RCC_CR_MSION);
+void SystemCoreClockUpdate(void) {
+    ;
 }
+
+void HAL_IncTick(void);
+void SysTick_Handler(void) {
+  HAL_IncTick();
+}
+
+void _exit(int status) {
+    while(1);
+}
+
+UART_HandleTypeDef UartHandle;
 
 void platform_init(void) {
 #if (__FPU_PRESENT == 1) && (__FPU_USED == 1)
     SCB->CPACR |= ((3UL << 20U)|(3UL << 22U));  /* set CP10 and CP11 Full Access */
 #endif
-
-    init_clock();
 
     // LED Pins init
     __HAL_RCC_GPIOC_CLK_ENABLE(); 
@@ -97,7 +55,7 @@ void init_uart(void) {
     GpioInit.Mode      = GPIO_MODE_AF_PP;
     GpioInit.Pull      = GPIO_PULLUP;
     GpioInit.Speed     = GPIO_SPEED_FREQ_HIGH;
-    GpioInit.Alternate = GPIO_AF4_USART1;
+    GpioInit.Alternate = GPIO_AF7_USART1;
     __GPIOA_CLK_ENABLE();
     HAL_GPIO_Init(GPIOA, &GpioInit);
 
@@ -142,11 +100,11 @@ void led_ok(int val) {
 char getch(void) {
     uint8_t d;
     while (HAL_UART_Receive(&UartHandle, &d, 1, 50) != HAL_OK)
-        USART1->ICR |= (1 << 3);
+        __HAL_UART_CLEAR_OREFLAG(&UartHandle);
     return d;
 }
 
 void putch(char c) {
-    uint8_t d  = c;
+    uint8_t d = c;
     HAL_UART_Transmit(&UartHandle,  &d, 1, 5000);
 }

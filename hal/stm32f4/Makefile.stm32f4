@@ -9,7 +9,7 @@ SRC += stm32f4_hal.c \
 
 EXTRAINCDIRS += $(HALPATH)/stm32f4 $(HALPATH)/stm32f4/Inc $(HALPATH)/stm32f4/Inc/Legacy $(HALPATH)/cmsis/Include $(HALPARENT)/CMSIS/CMSIS/Core/Include
 
-MCU_FLAGS = -mcpu=cortex-m0plus
+MCU_FLAGS = -mcpu=cortex-m4
 
 CDEFS += -D$(PLATFORM) -DSTM32 -DDEBUG -D$(FAMILY)
 CPPDEFS += -D$(PLATFORM) -DSTM32 -DDEBUG -D$(FAMILY)
@@ -29,10 +29,5 @@ CFLAGS += -mthumb -fmessage-length=0 -ffunction-sections
 CPPFLAGS += -mthumb -fmessage-length=0 -ffunction-sections 
 ASFLAGS += -mthumb -fmessage-length=0 -ffunction-sections
 
-ifeq ($(EXECTYPE),RAM)
-       EXECTYPEMSG = Assembling for execution in RAM.
-	LDFLAGS += --specs=nano.specs -T $(HALPATH)/stm32f451xx-ram.ld -Wl,--gc-sections -lm
-else
-       EXECTYPEMSG = Assembling for execution in flash.
-	LDFLAGS += --specs=nano.specs -T $(HALPATH)/stm32f451xx.ld -Wl,--gc-sections -lm
-endif
+EXECTYPEMSG = Assembling for execution in flash.
+LDFLAGS += --specs=nano.specs -T $(HALPATH)/LinkerScript.ld -Wl,--gc-sections -lm
