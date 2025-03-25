@@ -35,7 +35,7 @@ EXECTYPE = RAM
 
 # List C source files here.
 # Header files (.h) are automatically pulled in.
-SRC += rdp-downgrade.c stm32l0xx_hal_flash.c printf.c
+SRC += rdp-downgrade.c stm32l0xx_hal_flash.c stm32l0xx_hal_flash_ex.c printf.c
 
 # -----------------------------------------------------------------------------
 

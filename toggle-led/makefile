@@ -28,6 +28,15 @@
 # To rebuild project do "make clean" then "make all".
 #----------------------------------------------------------------------------
 
+# choose platform
+HAL = stm32l0
+PLTNAME = STM32L0 Target
+PLATFORM = STM32L0
+
+#HAL = stm32f4
+#PLTNAME = STM32F4 Target
+#PLATFORM = STM32F4
+
 # Target file name (without extension).
 # This is the name of the compiled .hex file.
 TARGET = toggle-led

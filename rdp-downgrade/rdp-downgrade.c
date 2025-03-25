@@ -22,6 +22,10 @@ static uint8_t FLASH_OB_GetRDP(void) {
 // copied from stm32l0xx_hal_flash_ex.c (private function)
 extern FLASH_ProcessTypeDef pFlash;
 static HAL_StatusTypeDef FLASH_OB_RDPConfig(uint8_t OB_RDP) {
+    /* open glitching window */
+    //led_error(1);
+
+    /* init */
     HAL_StatusTypeDef status = HAL_OK;
     uint32_t tmp1 = 0U, tmp2 = 0U, tmp3 = 0U;
     
@@ -47,18 +51,20 @@ static HAL_StatusTypeDef FLASH_OB_RDPConfig(uint8_t OB_RDP) {
         OB->RDP = tmp2;
 
         /* Wait for last operation to be completed */
-        led_error(1);
         status = FLASH_WaitForLastOperation(FLASH_TIMEOUT_VALUE);
-        led_error(0);
     }
+
+    /* close glitching window */
+    //led_error(0);
 
     /* Return the Read protection operation Status */
     return status;
 }
 
-uint8_t print_rdp_level() {
+uint8_t get_rdp_level() {
     uint8_t rdp_level = FLASH_OB_GetRDP();
     
+#if 0
     if (rdp_level == OB_RDP_LEVEL_0) {
         printf1("No RDP set.\r\n");
     } else if (rdp_level == OB_RDP_LEVEL_1) {
@@ -66,33 +72,79 @@ uint8_t print_rdp_level() {
     } else if (rdp_level == OB_RDP_LEVEL_2) {
         printf1("RDP level 2 set.\r\n");
     }
+#endif
 
     return rdp_level;
 }
 
 void flash_set_rdp(uint8_t rdp_level) {
-    HAL_StatusTypeDef status = HAL_FLASH_Unlock();
-    printf1("flash unlock status: %d\r\n", status);
-    status = HAL_FLASH_OB_Unlock();
-    printf1("flash option bytes unlock status: %d\r\n", status);
+    __disable_irq();
+    //led_error(1);
+    HAL_StatusTypeDef status1 = HAL_FLASH_Unlock();
+    //led_error(0);
+    //led_error(1);
+    HAL_StatusTypeDef status2 = HAL_FLASH_OB_Unlock();
+    //led_error(0);
+    led_error(1);
+    HAL_StatusTypeDef status3 = FLASH_OB_RDPConfig(rdp_level);
+    //led_error(0);
+    //led_error(1);
+    HAL_StatusTypeDef status4 = HAL_FLASH_Lock();
+    led_error(0);
+    __enable_irq();
 
-    status = FLASH_OB_RDPConfig(OB_RDP_LEVEL_0);
+#if 0
+    printf1("flash unlock status: %d\r\n", status1);
+    printf1("flash option bytes unlock status: %d\r\n", status2);
     printf1("flash rdp programming status: %d\r\n", status);
+#endif
+}
+
+void flash_erase(void) {
+    __disable_irq();
+    FLASH_EraseInitTypeDef erase_init;
+    uint32_t page_error = 0;
+    erase_init.TypeErase = FLASH_TYPEERASE_PAGES;
+    erase_init.PageAddress = 0x08000000;
+    erase_init.NbPages = 32;
+
+    //led_error(1);
+    HAL_StatusTypeDef status1 = HAL_FLASH_Unlock();
+    //led_error(0);
+    led_error(1);
+    HAL_StatusTypeDef status2 = HAL_FLASHEx_Erase(&erase_init, &page_error);
+    //led_error(0);
+    //led_error(1);
+    HAL_StatusTypeDef status3 = HAL_FLASH_Lock();
+    led_error(0);
+    __enable_irq();
 }
 
 int main(void) {
     platform_init();
+
     // RX = A10, Pin 20
     // TX = A9, Pin 19
-    init_uart();
+    //init_uart();
 
-    // status leds
-    led_ok(0);
-    led_error(0);
+    uint32_t rounds = 5;
+    for (int i = 0; i < rounds; ++i) {
+        uint32_t cycles = 10000;
+        while (cycles--) {
+            __NOP();
+        }
+    }
 
-    uint8_t rdp_level = print_rdp_level();
-    if (rdp_level != OB_RDP_LEVEL_0)
-        flash_set_rdp(0x00);
+#if 1
+    uint8_t rdp_level = get_rdp_level();
+    if (rdp_level != OB_RDP_LEVEL_0) {
+        flash_set_rdp(OB_RDP_LEVEL_0);
+    }
+#endif
 
-    while (1);
+#if 0
+    flash_erase();
+#endif
+
+    while (1) {}
 }

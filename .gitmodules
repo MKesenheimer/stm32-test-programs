@@ -1,0 +1,6 @@
+[submodule "hal/cmsis-device-l0"]
+	path = hal/cmsis-device-l0
+	url = https://github.com/STMicroelectronics/cmsis-device-l0.git
+[submodule "hal/cmsis-device-f4"]
+	path = hal/cmsis-device-f4
+	url = https://github.com/STMicroelectronics/cmsis-device-f4.git

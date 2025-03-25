@@ -1,7 +1,7 @@
 # Hey Emacs, this is a -*- makefile -*-
 #----------------------------------------------------------------------------
 #
-# Makefile for STM32L0 projects
+# Makefile for STM32 projects
 #
 #----------------------------------------------------------------------------
 # On command line:
