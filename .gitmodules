@@ -1,6 +1,15 @@
-[submodule "hal/cmsis-device-l0"]
-	path = hal/cmsis-device-l0
-	url = https://github.com/STMicroelectronics/cmsis-device-l0.git
-[submodule "hal/cmsis-device-f4"]
-	path = hal/cmsis-device-f4
+[submodule "hal/stm32l0/stm32l0"]
+	path = hal/stm32l0/stm32l0
+	url = https://github.com/STMicroelectronics/stm32l0xx-hal-driver.git
+[submodule "hal/stm32f4/cmsis"]
+	path = hal/stm32f4/cmsis
 	url = https://github.com/STMicroelectronics/cmsis-device-f4.git
+[submodule "hal/stm32f4/stm32f4"]
+	path = hal/stm32f4/stm32f4
+	url = https://github.com/STMicroelectronics/stm32f4xx-hal-driver.git
+[submodule "hal/stm32l0/cmsis"]
+	path = hal/stm32l0/cmsis
+	url = https://github.com/STMicroelectronics/cmsis-device-l0.git
+[submodule "hal/CMSIS"]
+	path = hal/CMSIS
+	url = https://github.com/ARM-software/CMSIS_5.git

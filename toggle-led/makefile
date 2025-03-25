@@ -29,13 +29,17 @@
 #----------------------------------------------------------------------------
 
 # choose platform
-HAL = stm32l0
-PLTNAME = STM32L0 Target
-PLATFORM = STM32L0
+#HAL = stm32l0
+#PLTNAME = STM32L0 Target
+#PLATFORM = STM32L0
+#FAMILY = STM32L051xx
+#ASRC += startup_stm32l051xx.s
 
-#HAL = stm32f4
-#PLTNAME = STM32F4 Target
-#PLATFORM = STM32F4
+HAL = stm32f4
+PLTNAME = STM32f4 Target
+PLATFORM = STM32f4
+FAMILY = STM32F22xx
+ASRC += startup_stm32f422xx.s
 
 # Target file name (without extension).
 # This is the name of the compiled .hex file.

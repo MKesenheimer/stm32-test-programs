@@ -49,14 +49,7 @@ CPPSRC +=
 
 
 # List Assembler source files here.
-#     Make them always end in a capital .S.  Files ending in a lowercase .s
-#     will not be considered source files but generated files (assembler
-#     output from the compiler), and will be deleted upon "make clean"!
-#     Even though the DOS/Win* filesystem matches both .s and .S the same,
-#     it will preserve the spelling of the filenames, and gcc itself does
-#     care about how the name is spelled on its command-line.
 ASRC +=
-
 
 
 ##########################################################################
@@ -177,10 +170,10 @@ CFLAGS += $(CFLAGS_LAST)
 #  -listing-cont-lines: Sets the maximum number of continuation lines of hex
 #       dump that will be displayed for a given single line of source input.
 
-#-adhlns=$(<:%.S=$(OBJDIR)/%.lst),
+#-adhlns=$(<:%.s=$(OBJDIR)/%.lst),
 #,--listing-cont-lines=100
 
-ASFLAGS += $(ADEFS) -Wa,-gstabs,-adhlns=$(addprefix $(OBJDIR)/,$(notdir $(<:%.S=%.lst)))
+ASFLAGS += $(ADEFS) -Wa,-gstabs,-adhlns=$(addprefix $(OBJDIR)/,$(notdir $(<:%.s=%.lst)))
 ASFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
 
 
@@ -305,10 +298,10 @@ MSG_CREATING_LIBRARY = Creating library:
 
 
 # Define all object files.
-OBJ = $(SRC:%.c=$(OBJDIR)/%.o) $(CPPSRC:%.cpp=$(OBJDIR)/%.o) $(ASRC:%.S=$(OBJDIR)/%.o)
+OBJ = $(SRC:%.c=$(OBJDIR)/%.o) $(CPPSRC:%.cpp=$(OBJDIR)/%.o) $(ASRC:%.s=$(OBJDIR)/%.o)
 
 # Define all listing files.
-LST = $(SRC:%.c=$(OBJDIR)/%.lst) $(CPPSRC:%.cpp=$(OBJDIR)/%.lst) $(ASRC:%.S=$(OBJDIR)/%.lst)
+LST = $(SRC:%.c=$(OBJDIR)/%.lst) $(CPPSRC:%.cpp=$(OBJDIR)/%.lst) $(ASRC:%.s=$(OBJDIR)/%.lst)
 
 
 # Compiler flags to generate dependency files.
@@ -491,7 +484,7 @@ $(OBJDIR)/%.o : %.cpp
 
 
 # Assemble: create object files from assembler source files.
-$(OBJDIR)/%.o : %.S
+$(OBJDIR)/%.o : %.s
 	@$(ECHO_BLANK)
 	@echo $(MSG_ASSEMBLING) $<
 	@echo $(EXECTYPEMSG)

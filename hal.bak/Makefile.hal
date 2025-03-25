@@ -1,4 +1,4 @@
-HALPATH = $(FIRMWAREPATH)/hal
+HALPATH = $(FIRMWAREPATH)/hal.bak
 VPATH += :$(HALPATH)
 
 #Default stuff
