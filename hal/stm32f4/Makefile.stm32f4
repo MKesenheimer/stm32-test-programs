@@ -1,7 +1,8 @@
 VPATH += :$(HALPATH)/stm32f4
 VPATH += :$(HALPATH)/stm32f4/Src
 VPATH += :$(HALPATH)/cmsis/Source/Templates/gcc
-SRC += stm32f4_hal.c \
+SRC += system_stm32f4xx.c \
+       stm32f4_hal.c \
        stm32f4xx_hal.c \
        stm32f4xx_hal_rcc.c \
        stm32f4xx_hal_gpio.c \
@@ -11,8 +12,10 @@ EXTRAINCDIRS += $(HALPATH)/stm32f4 $(HALPATH)/stm32f4/Inc $(HALPATH)/stm32f4/Inc
 
 MCU_FLAGS = -mcpu=cortex-m4
 
-CDEFS += -D$(PLATFORM) -DSTM32 -DDEBUG -D$(FAMILY)
-CPPDEFS += -D$(PLATFORM) -DSTM32 -DDEBUG -D$(FAMILY)
+CDEFS += -DSTM32 -DDEBUG -D$(FAMILY) -D$(CHIP)xx -D$(CHIP) -DCHIP=$(CHIP)
+CPPDEFS += -DSTM32 -DDEBUG -D$(FAMILY) -D$(CHIP)xx -D$(CHIP) -DCHIP=$(CHIP)
+
+ASRC += startup_$(CHIP_LOWER)xx.s
 
 CC = arm-none-eabi-gcc
 OBJCOPY = arm-none-eabi-objcopy

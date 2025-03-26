@@ -3,8 +3,22 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#ifdef STM32L0
 #include "stm32l0_hal.h"
+#include "stm32l0xx_hal_flash.h"
 #include "stm32l0xx_hal_flash_ex.h"
+#endif
+#ifdef STM32F4
+#include "stm32f4_hal.h"
+#include "stm32f4xx_hal_flash.h"
+#include "stm32f4xx_hal_flash_ex.h"
+#endif
+#ifdef STM32L4
+#include "stm32l4_hal.h"
+#include "stm32l4xx_hal_flash.h"
+#include "stm32l4xx_hal_flash_ex.h"
+#endif
+
 #include "printf.h"
 
 HAL_StatusTypeDef erase_flash(void) {
@@ -15,12 +29,20 @@ HAL_StatusTypeDef erase_flash(void) {
         return status;
     }
 
+#ifdef STM32L0
     // Define the page and bank for the erase operation
     FLASH_EraseInitTypeDef erase_init;
     uint32_t page_error = 0;
     erase_init.TypeErase = FLASH_TYPEERASE_PAGES;
     erase_init.PageAddress = 0x08000000;
     erase_init.NbPages = 1;
+#endif
+#ifdef STM32L4
+    // Define the page and bank for the erase operation
+    FLASH_EraseInitTypeDef erase_init;
+    uint32_t page_error = 0;
+    erase_init.TypeErase = FLASH_TYPEERASE_MASSERASE;
+#endif
 
     // Erase the page
     status = HAL_FLASHEx_Erase(&erase_init, &page_error);

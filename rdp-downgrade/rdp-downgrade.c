@@ -3,9 +3,22 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#ifdef STM32L0
 #include "stm32l0_hal.h"
 #include "stm32l0xx_hal_flash.h"
 #include "stm32l0xx_hal_flash_ex.h"
+#endif
+#ifdef STM32F4
+#include "stm32f4_hal.h"
+#include "stm32f4xx_hal_flash.h"
+#include "stm32f4xx_hal_flash_ex.h"
+#endif
+#ifdef STM32L4
+#include "stm32l4_hal.h"
+#include "stm32l4xx_hal_flash.h"
+#include "stm32l4xx_hal_flash_ex.h"
+#endif
+
 #include "printf.h"
 
 // copied from stm32l0xx_hal_flash_ex.c (private function)

@@ -7,21 +7,9 @@
 #include "stm32l0xx_hal_uart.h"
 #include "stm32l0xx_hal_cryp.h"
 
-uint32_t SystemCoreClock = 16000000U;
-
-//const uint8_t  AHBPrescTable[16] = {0U, 0U, 0U, 0U, 0U, 0U, 0U, 0U, 1U, 2U, 3U, 4U, 6U, 7U, 8U, 9U};
-//const uint8_t  APBPrescTable[8] =  {0U, 0U, 0U, 0U, 1U, 2U, 3U, 4U};
-//const uint32_t MSIRangeTable[16] = {100000U,   200000U,   400000U,   800000U,  1000000U,  2000000U, \
-//                                    4000000U, 8000000U, 16000000U, 24000000U, 32000000U, 48000000U, \
-//                                    0U,       0U,       0U,        0U};  /* MISRAC-2012: 0U for unexpected value */
-//const uint8_t PLLMulTable[9] = {3U, 4U, 6U, 8U, 12U, 16U, 24U, 32U, 48U};
-
-void SystemInit(void) {
-    //Init happens higher up
-}
-
 UART_HandleTypeDef UartHandle;
 
+// TODO: can probably be deleted
 // Change system clock to 32 MHz using internal 16 MHz R/C oscillator
 void init_clock() {
     // Because the debugger switches PLL on, we may need to switch
@@ -72,7 +60,7 @@ void platform_init(void) {
     SCB->CPACR |= ((3UL << 20U)|(3UL << 22U));  /* set CP10 and CP11 Full Access */
 #endif
 
-    init_clock();
+    //init_clock();
 
     // LED Pins init
     __HAL_RCC_GPIOC_CLK_ENABLE(); 
@@ -141,8 +129,9 @@ void led_ok(int val) {
 
 char getch(void) {
     uint8_t d;
-    while (HAL_UART_Receive(&UartHandle, &d, 1, 50) != HAL_OK)
-        USART1->ICR |= (1 << 3);
+    while (HAL_UART_Receive(&UartHandle, &d, 1, 50) != HAL_OK) {
+        __HAL_UART_CLEAR_OREFLAG(&UartHandle);
+    }
     return d;
 }
 

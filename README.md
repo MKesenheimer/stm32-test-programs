@@ -5,6 +5,12 @@ arm-none-eabi-gcc
 arm-none-eabi-newlib
 ```
 
+## updating submodules
+
+```bash
+git submodule update --init --recursive
+```
+
 ## adding new chips
 
 For example, adding the STM32F4:
@@ -42,4 +48,10 @@ cp ./Projects/STM32F429I-Discovery/Templates/Inc/stm32f4xx_hal_conf.h $(stm32-te
 ```bash
 hal/stm32l0/stm32l0_hal.c
 hal/stm32l0/stm32l0_hal.h
+```
+
+- Copy the `system` initialization template and modify it if necessary:
+```bash
+find . -iname "system_stm32*xx.c"
+cp hal/stm32f4/cmsis/Source/Templates/system_stm32f4xx.c hal/stm32f4
 ```

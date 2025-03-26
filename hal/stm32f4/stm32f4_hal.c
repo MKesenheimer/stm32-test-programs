@@ -6,16 +6,6 @@
 #include "stm32f4xx_hal_uart.h"
 #include "stm32f4xx_hal_cryp.h"
 
-uint32_t SystemCoreClock = 16000000U;
-
-void SystemInit(void) {
-    //Init happens higher up
-}
-
-void SystemCoreClockUpdate(void) {
-    ;
-}
-
 void HAL_IncTick(void);
 void SysTick_Handler(void) {
   HAL_IncTick();
@@ -99,8 +89,9 @@ void led_ok(int val) {
 
 char getch(void) {
     uint8_t d;
-    while (HAL_UART_Receive(&UartHandle, &d, 1, 50) != HAL_OK)
+    while (HAL_UART_Receive(&UartHandle, &d, 1, 50) != HAL_OK) {
         __HAL_UART_CLEAR_OREFLAG(&UartHandle);
+    }
     return d;
 }
 

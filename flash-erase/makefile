@@ -29,20 +29,28 @@
 #----------------------------------------------------------------------------
 
 # choose platform
-HAL = stm32l0
-PLTNAME = STM32L0 Target
-PLATFORM = STM32L0
-FAMILY = STM32L051xx
-ASRC += startup_stm32l051xx.s
+# STM32L051
+FAMILY = STM32L0
+CHIP = STM32L051
+
+# STM32L422
+#FAMILY = STM32L4
+#CHIP = STM32L422
 
 # Target file name (without extension).
 # This is the name of the compiled .hex file.
 TARGET = flash-erase
-EXECTYPE = RAM
+#EXECTYPE = RAM
 
 # List C source files here.
 # Header files (.h) are automatically pulled in.
-SRC += flash-erase.c stm32l0xx_hal_flash_ex.c stm32l0xx_hal_flash.c printf.c
+ifeq ($(FAMILY),STM32L0)
+	SRC += stm32l0xx_hal_flash_ex.c stm32l0xx_hal_flash.c
+else ifeq ($(FAMILY),STM32L4)
+	SRC += stm32l4xx_hal_flash_ex.c stm32l4xx_hal_flash.c
+endif
+
+SRC += flash-erase.c printf.c
 
 # -----------------------------------------------------------------------------
 

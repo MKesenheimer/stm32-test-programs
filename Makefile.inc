@@ -1,9 +1,9 @@
 # Hey Emacs, this is a -*- makefile -*-
-#----------------------------------------------------------------------------
+###########################################################################
 #
 # Makefile for STM32 projects
 #
-#----------------------------------------------------------------------------
+###########################################################################
 # On command line:
 #
 # make all = Make software.
@@ -22,24 +22,21 @@
 #                   bug reports to the GCC project.
 #
 # To rebuild project do "make clean" then "make all".
-#----------------------------------------------------------------------------
+###########################################################################
+
+FAMILY_LOWER = $(shell echo $(FAMILY) | tr 'A-Z' 'a-z')
+CHIP_LOWER = $(shell echo $(CHIP) | tr 'A-Z' 'a-z')
 
 include $(FIRMWAREPATH)/hal/Makefile.hal
 include $(FIRMWAREPATH)/include/Makefile.include
 
-#Debug - can be useful to see variables
-#${info '$(.VARIABLES)'}
-
 # Add the platform to the output filenames
-TARGET-PLAT = $(TARGET)-$(PLATFORM)
-
-# Also get target names for all platforms (for make clean)
-TARGET-ALL = $(foreach PLAT,$(PLATFORM_LIST), $(TARGET)-$(PLAT))
+TARGET-PLAT = $(TARGET)-$(CHIP_LOWER)
 
 # Object files directory
 #     To put object files in current directory, use a dot (.), do NOT make
 #     this an empty or blank macro!
-OBJDIR = objdir-$(PLATFORM)
+OBJDIR = objdir-$(CHIP_LOWER)
 
 # List C source files here. (C dependencies are automatically generated.)
 SRC +=
@@ -47,16 +44,12 @@ SRC +=
 # List C++ source files here. (C dependencies are automatically generated.)
 CPPSRC +=
 
-
 # List Assembler source files here.
 ASRC +=
 
 
-##########################################################################
-##########################################################################
-
-#VPATH +=
-
+###########################################################################
+###########################################################################
 # Optimization level, can be [0, 1, 2, 3, s].
 #     0 = turn off optimization. s = optimize for size.
 #     (Note: 3 is not always the best optimization level. See avr-libc FAQ.)
@@ -64,20 +57,17 @@ ifeq ($(OPT),)
   OPT = s
 endif
 
-
 # Debugging format.
 #     Native formats for AVR-GCC's -g are dwarf-2 [default] or stabs.
 #     AVR Studio 4.10 requires dwarf-2.
 #     AVR [Extended] COFF format requires stabs, plus an avr-objcopy run.
 DEBUG = dwarf-2
 
-
 # List any extra directories to look for include files here.
 #     Each directory must be seperated by a space.
 #     Use forward slashes for directory separators.
 #     For a directory that has spaces, enclose it in quotes.
 EXTRAINCDIRS +=
-
 
 # Compiler flag to set the C Standard level.
 #     c89   = "ANSI" C
@@ -86,14 +76,11 @@ EXTRAINCDIRS +=
 #     gnu99 = c99 plus GCC extensions
 CSTANDARD = -std=gnu99
 
-
 # Place -D or -U options here for C sources
 CDEFS += -DF_CPU=$(F_CPU)UL
 
-
 # Place -D or -U options here for ASM sources
 ADEFS += -DF_CPU=$(F_CPU)
-
 
 # Place -D or -U options here for C++ sources
 CPPDEFS += -DF_CPU=$(F_CPU)UL
@@ -101,8 +88,9 @@ CPPDEFS += -DF_CPU=$(F_CPU)UL
 #CPPDEFS += -D__STDC_CONSTANT_MACROS
 
 
-
-#---------------- Compiler Options C ----------------
+###########################################################################
+# Compiler Options C
+###########################################################################
 #  -g*:          generate debugging information
 #  -O*:          optimization level
 #  -f...:        tuning, see GCC manual and avr-libc documentation
@@ -131,7 +119,9 @@ CFLAGS += -Wno-discarded-qualifiers -Wno-unused-function -Wno-unused-variable -W
 CFLAGS += -Wno-pointer-sign -Wno-unused-value -Wno-implicit-function-declaration
 
 
-#---------------- Compiler Options C++ ----------------
+###########################################################################
+# Compiler Options C++
+###########################################################################
 #  -g*:          generate debugging information
 #  -O*:          optimization level
 #  -f...:        tuning, see GCC manual and avr-libc documentation
@@ -160,7 +150,10 @@ CPPFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
 #Flags that must come at end of list can be specified with CFLAGS_LAST
 CFLAGS += $(CFLAGS_LAST)
 
-#---------------- Assembler Options ----------------
+
+###########################################################################
+# Assembler Options
+###########################################################################
 #  -Wa,...:   tell GCC to pass this to the assembler.
 #  -adhlns:   create listing
 #  -gstabs:   have the assembler create line number information; note that
@@ -170,12 +163,8 @@ CFLAGS += $(CFLAGS_LAST)
 #  -listing-cont-lines: Sets the maximum number of continuation lines of hex
 #       dump that will be displayed for a given single line of source input.
 
-#-adhlns=$(<:%.s=$(OBJDIR)/%.lst),
-#,--listing-cont-lines=100
-
 ASFLAGS += $(ADEFS) -Wa,-gstabs,-adhlns=$(addprefix $(OBJDIR)/,$(notdir $(<:%.s=%.lst)))
 ASFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
-
 
 VERBOSE ?= false
 
@@ -190,7 +179,9 @@ else
 endif
 
 
-#---------------- Library Options ----------------
+###########################################################################
+# Library Options
+###########################################################################
 # Minimalistic printf version
 PRINTF_LIB_MIN = -Wl,-u,vfprintf -lprintf_min
 
@@ -225,9 +216,9 @@ MATH_LIB = -lm
 EXTRALIBDIRS =
 
 
-
-#---------------- External Memory Options ----------------
-
+###########################################################################
+# External Memory Options
+###########################################################################
 # 64 KB of external RAM, starting after internal RAM (ATmega128!),
 # used for variables (.data/.bss) and heap (malloc()).
 #EXTMEMOPTS = -Wl,-Tdata=0x801100,--defsym=__heap_end=0x80ffff
@@ -239,8 +230,9 @@ EXTRALIBDIRS =
 EXTMEMOPTS =
 
 
-
-#---------------- Linker Options ----------------
+###########################################################################
+# Linker Options
+###########################################################################
 #  -Wl,...:     tell GCC to pass this to linker.
 #    -Map:      create map file
 #    --cref:    add cross reference to  map file
@@ -252,14 +244,10 @@ LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB)
 #LDFLAGS += -T linker_script.x
 
 
-
-
-#============================================================================
-
-
+###########################################################################
+###########################################################################
 # Define programs and commands.
 SHELL = sh
-
 
 REMOVE = rm -f --
 REMOVEDIR = rm -rf
@@ -277,7 +265,6 @@ else
 	MAKEDIR = mkdir -p
 endif
 
-
 # Define Messages
 # English
 MSG_ERRORS_NONE = Errors: none
@@ -291,18 +278,13 @@ MSG_LINKING = Linking:
 MSG_COMPILING = Compiling C:
 MSG_COMPILING_CPP = Compiling C++:
 MSG_ASSEMBLING = Assembling:
-MSG_CLEANING = Cleaning project:
 MSG_CREATING_LIBRARY = Creating library:
-
-
-
 
 # Define all object files.
 OBJ = $(SRC:%.c=$(OBJDIR)/%.o) $(CPPSRC:%.cpp=$(OBJDIR)/%.o) $(ASRC:%.s=$(OBJDIR)/%.o)
 
 # Define all listing files.
 LST = $(SRC:%.c=$(OBJDIR)/%.lst) $(CPPSRC:%.cpp=$(OBJDIR)/%.lst) $(ASRC:%.s=$(OBJDIR)/%.lst)
-
 
 # Compiler flags to generate dependency files.
 GENDEPFLAGS = -MMD -MP -MF .dep/$(@F).d
@@ -313,19 +295,17 @@ ALL_CFLAGS = $(MCU_FLAGS) -I. $(CFLAGS) $(GENDEPFLAGS)
 ALL_CPPFLAGS = $(MCU_FLAGS) -I. -x c++ $(CPPFLAGS) $(GENDEPFLAGS)
 ALL_ASFLAGS = $(MCU_FLAGS) -I. -x assembler-with-cpp $(ASFLAGS)
 
-
 # Default target.
 all: 
-	@$(MAKE) --no-print-directory -O clean_objs .dep 
+	@$(MAKE) --no-print-directory -O clean-objs .dep 
 	@$(MAKE) --no-print-directory -O gccversion build 
-	@$(MAKE) --no-print-directory -O sizeafter fastnote
+	@$(MAKE) --no-print-directory -O sizeafter
 
 allquick: .dep gccversion build sizeafter
 
 # Change the build target to build a HEX file or a library.
 build: elf hex bin eep lss sym
 #build: lib
-
 
 elf: $(TARGET-PLAT).elf
 hex: $(TARGET-PLAT).hex
@@ -335,12 +315,6 @@ lss: $(TARGET-PLAT).lss
 sym: $(TARGET-PLAT).sym
 LIBNAME=lib$(TARGET-PLAT).a
 lib: $(LIBNAME)
-
-fastnote:
-	@echo   +--------------------------------------------------------
-	@echo   + Default target does full rebuild each time.
-	@echo   + Specify buildtarget == allquick == to avoid full rebuild
-	@echo   +--------------------------------------------------------
 
 # Display size of file.
 HEXSIZE = $(SIZE) --target=ihex $(TARGET-PLAT).hex
@@ -364,10 +338,8 @@ $(OBJDIR):
 	$(MAKEDIR) .dep
 
 # Display compiler version information.
-gccversion :
+gccversion:
 	@$(CC) --version
-
-
 
 # Program the device.
 program: $(TARGET-PLAT).hex $(TARGET-PLAT).eep
@@ -402,9 +374,6 @@ else
 endif
 	@$(WINSHELL) /c start avr-$(DEBUG_UI) --command=$(GDBINIT_FILE)
 
-
-
-
 # Create final output files (.hex, .eep) from ELF output file.
 %.hex: %.elf
 	@$(ECHO_BLANK)
@@ -415,7 +384,6 @@ endif
 	@$(ECHO_BLANK)
 	@echo $(MSG_FLASH) $@
 	$(OBJCOPY) -O binary -R .eeprom -R .fuse -R .lock -R .signature $< $@
-
 
 %.eep: %.elf
 	@$(ECHO_BLANK)
@@ -435,20 +403,17 @@ endif
 	@echo $(MSG_SYMBOL_TABLE) $@
 	$(NM) -n $< > $@
 
-
-
 # Create library from object files.
-.SECONDARY : $(TARGET-PLAT).a
-.PRECIOUS : $(OBJ)
+.SECONDARY: $(TARGET-PLAT).a
+.PRECIOUS: $(OBJ)
 %.a: $(OBJ)
 	@$(ECHO_BLANK)
 	@echo $(MSG_CREATING_LIBRARY) $@
 	$(AR) $@ $(OBJ)
 
-
 # Link: create ELF output file from object files.
-.SECONDARY : $(TARGET-PLAT).elf
-.PRECIOUS : $(OBJ)
+.SECONDARY: $(TARGET-PLAT).elf
+.PRECIOUS: $(OBJ)
 %.elf: $(OBJ)
 	@$(ECHO_BLANK)
 	@echo LINKING:
@@ -456,103 +421,85 @@ endif
 	@$(CC) $(ALL_CFLAGS) $^ --output $@ $(LDFLAGS)
 	@echo -e $(DONEMSG)
 
-
 # Compile: create object files from C source files.
-$(OBJDIR)/%.o : %.c
+$(OBJDIR)/%.o: %.c
 	@$(ECHO_BLANK)
 	@echo Compiling:
 	@echo -en $(COMPMSG)
 	@$(CC) -c $(ALL_CFLAGS) $< -o $@
 	@echo -e $(DONEMSG)
 
-
 # Compile: create object files from C++ source files.
-$(OBJDIR)/%.o : %.cpp
+$(OBJDIR)/%.o: %.cpp
 	@$(ECHO_BLANK)
 	@echo $(MSG_COMPILING_CPP) $<
 	$(CC) -c $(ALL_CPPFLAGS) $< -o $@
 
-
 # Compile: create assembler files from C source files.
-%.s : %.c
+%.s: %.c
 	$(CC) -S $(ALL_CFLAGS) $< -o $@
 
-
 # Compile: create assembler files from C++ source files.
-%.s : %.cpp
+%.s: %.cpp
 	$(CC) -S $(ALL_CPPFLAGS) $< -o $@
 
-
 # Assemble: create object files from assembler source files.
-$(OBJDIR)/%.o : %.s
+$(OBJDIR)/%.o: %.s
 	@$(ECHO_BLANK)
 	@echo $(MSG_ASSEMBLING) $<
 	@echo $(EXECTYPEMSG)
 	$(CC) -c $(ALL_ASFLAGS) $< -o $@
 
-
 # Create preprocessed source for use in sending a bug report.
-%.i : %.c
+%.i: %.c
 	$(CC) -E $(MCU_FLAGS) -I. $(CFLAGS) $< -o $@
 
 # Clean all object files specific to this platform
-clean_objs :
-	@$(REMOVE) $(TARGET-PLAT).hex
-	@$(REMOVE) $(TARGET-PLAT).eep
-	@$(REMOVE) $(TARGET-PLAT).cof
-	@$(REMOVE) $(TARGET-PLAT).elf
-	@$(REMOVE) $(TARGET-PLAT).map
-	@$(REMOVE) $(TARGET-PLAT).sym
-	@$(REMOVE) $(TARGET-PLAT).lss
-	@$(REMOVE) $(OBJDIR)/*.o
-	@$(REMOVE) $(OBJDIR)/*.lst
-	@$(REMOVE) $(SRC:.c=.s)
-	@$(REMOVE) $(SRC:.c=.d)
-	@$(REMOVE) $(SRC:.c=.i)
+clean-objs:
+	$(REMOVE) $(TARGET-PLAT).hex
+	$(REMOVE) $(TARGET-PLAT).eep
+	$(REMOVE) $(TARGET-PLAT).cof
+	$(REMOVE) $(TARGET-PLAT).elf
+	$(REMOVE) $(TARGET-PLAT).map
+	$(REMOVE) $(TARGET-PLAT).sym
+	$(REMOVE) $(TARGET-PLAT).lss
+	$(REMOVE) $(SRC:.c=.d)
+	$(REMOVE) $(SRC:.c=.i)
+	$(REMOVEDIR) $(OBJDIR)
 
 # Target: clean project.
-clean: begin clean_print clean_all_objs clean_list end
-
-clean_print :
-	@$(ECHO_BLANK)
-	@echo $(MSG_CLEANING)
+clean: begin clean-objs clean-list end
 
 # Clean all object files related to any of the platforms
-clean_all_objs :
-	@$(REMOVE) $(addsuffix .hex,$(TARGET-ALL))
-	@$(REMOVE) $(addsuffix .eep,$(TARGET-ALL))
-	@$(REMOVE) $(addsuffix .bin,$(TARGET-ALL))
-	@$(REMOVE) $(addsuffix .cof,$(TARGET-ALL))
-	@$(REMOVE) $(addsuffix .elf,$(TARGET-ALL))
-	@$(REMOVE) $(addsuffix .map,$(TARGET-ALL))
-	@$(REMOVE) $(addsuffix .sym,$(TARGET-ALL))
-	@$(REMOVE) $(addsuffix .lss,$(TARGET-ALL))
-	@$(REMOVE) $(OBJDIR)/*.o
-	@$(REMOVE) $(OBJDIR)/*.lst
-	@$(REMOVEDIR) $(OBJDIR)
-	@$(REMOVE) $(SRC:.c=.s)
-	@$(REMOVE) $(SRC:.c=.d)
-	@$(REMOVE) $(SRC:.c=.i)
+clean-all-objs:
+	$(REMOVE) *.hex
+	$(REMOVE) *.eep
+	$(REMOVE) *.cof
+	$(REMOVE) *.elf
+	$(REMOVE) *.map
+	$(REMOVE) *.sym
+	$(REMOVE) *.lss
+	$(REMOVE) *.d
+	$(REMOVE) *.i
+	$(REMOVE) *.bin
+	$(REMOVEDIR) objdir-*
 
-clean_list :
+clean-list:
 	$(REMOVEDIR) .dep
 
-# Create object files directory
-#$(shell mkdir $(OBJDIR) 2>/dev/null)
+clean-all: clean-list clean-all-objs
+
+flash: all
+	openocd -f interface/stlink.cfg -c "transport select hla_swd" -f target/$(FAMILY_LOWER).cfg -c "init; halt; program $(TARGET-PLAT).elf reset exit;"
 
 # Include the dependency files.
 #-include $(shell mkdir .dep 2>/dev/null) $(wildcard .dep/*)
 -include $(wildcard .dep/*)
 
-
 # Listing of phony targets.
 .PHONY : all allquick begin finish end sizeafter gccversion \
 build elf hex bin eep lss sym coff extcoff \
-clean clean_list clean_print clean_objs program debug gdb-config \
-fastnote
+clean clean-list clean-objs clean-all program debug gdb-config
 
-# saveplatform: Save the platform into the file Makefile.target
-saveplatform:
-	-@rm -f Makefile.platform
-	@echo "Saving Makefile.platform"
-	@echo >Makefile.platform "PLATFORM = $(PLATFORM)"
+print-%:
+	@echo $($*)

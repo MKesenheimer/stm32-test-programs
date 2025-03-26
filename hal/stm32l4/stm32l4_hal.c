@@ -1,21 +1,9 @@
-
 #include "stm32l4_hal.h"
-//#include "stm32l562xx.h"
 #include "stm32l4xx_hal_rcc.h"
 #include "stm32l4xx_hal_gpio.h"
 #include "stm32l4xx_hal_dma.h"
 #include "stm32l4xx_hal_uart.h"
 #include "stm32l4xx_hal_cryp.h"
-
-uint32_t SystemCoreClock = 16000000U;
-
-void SystemInit(void) {
-    //Init happens higher up
-}
-
-void SystemCoreClockUpdate(void) {
-    ;
-}
 
 void HAL_IncTick(void);
 void SysTick_Handler(void) {
@@ -100,8 +88,9 @@ void led_ok(int val) {
 
 char getch(void) {
     uint8_t d;
-    while (HAL_UART_Receive(&UartHandle, &d, 1, 50) != HAL_OK);
+    while (HAL_UART_Receive(&UartHandle, &d, 1, 50) != HAL_OK) {
         __HAL_UART_CLEAR_OREFLAG(&UartHandle);
+    }
     return (char)d;
 }
 

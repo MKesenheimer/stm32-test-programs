@@ -1,7 +1,16 @@
 #include <stdarg.h>
 #include <string.h>
 #include "printf.h"
+
+#ifdef STM32L0
 #include "stm32l0_hal.h"
+#endif
+#ifdef STM32F4
+#include "stm32f4_hal.h"
+#endif
+#ifdef STM32L4
+#include "stm32l4_hal.h"
+#endif
 
 char *trimwhitespace_unsafe(char *str) {
     char *end;
