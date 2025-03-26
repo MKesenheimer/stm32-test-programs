@@ -264,6 +264,7 @@ else
 	AdjustPath = $(addprefix $1/, $2)
 	MAKEDIR = mkdir -p
 endif
+OPENOCD_CONFIG ?= target/$(FAMILY_LOWER).cfg
 
 # Define Messages
 # English
@@ -490,7 +491,7 @@ clean-list:
 clean-all: clean-list clean-all-objs
 
 flash: all
-	openocd -f interface/stlink.cfg -c "transport select hla_swd" -f target/$(FAMILY_LOWER).cfg -c "init; halt; program $(TARGET-PLAT).elf reset exit;"
+	openocd -f interface/stlink.cfg -c "transport select hla_swd" -f $(OPENOCD_CONFIG) -c "init; halt; program $(TARGET-PLAT).elf reset exit;"
 
 # Include the dependency files.
 #-include $(shell mkdir .dep 2>/dev/null) $(wildcard .dep/*)

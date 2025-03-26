@@ -43,15 +43,15 @@ find . -iname "*hal_conf.h" | grep Template
 cp ./Projects/STM32F429I-Discovery/Templates/Inc/stm32f4xx_hal_conf.h $(stm32-test-programs)/hal/stm32f4
 ```
 
+- Copy the `system` initialization template and modify if necessary:
+```bash
+find . -iname "system_stm32*xx.c"
+cp hal/stm32f4/cmsis/Source/Templates/system_stm32f4xx.c hal/stm32f4
+```
+
 - Copy the following files and adapt as needed:
 
 ```bash
 hal/stm32l0/stm32l0_hal.c
 hal/stm32l0/stm32l0_hal.h
-```
-
-- Copy the `system` initialization template and modify it if necessary:
-```bash
-find . -iname "system_stm32*xx.c"
-cp hal/stm32f4/cmsis/Source/Templates/system_stm32f4xx.c hal/stm32f4
 ```
