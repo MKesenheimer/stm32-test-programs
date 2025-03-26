@@ -13,7 +13,6 @@
 #endif
 
 uint8_t infinite_loop() {
-
     // comes on after 3.6ms
     led_ok(1);
     led_error(0);

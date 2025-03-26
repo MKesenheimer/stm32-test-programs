@@ -48,6 +48,12 @@ TARGET = toggle-led
 # List C source files here.
 # Header files (.h) are automatically pulled in.
 SRC += toggle-led.c
+ifeq ($(FAMILY),STM32L0)
+	SRC +=
+else ifeq ($(FAMILY),STM32L4)
+	OPENOCD_CONFIG = target/stm32l4x.cfg
+	SRC +=
+endif
 
 # -----------------------------------------------------------------------------
 

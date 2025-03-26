@@ -24,6 +24,8 @@ void platform_init(void) {
     // LED Pins init
     __HAL_RCC_GPIOC_CLK_ENABLE(); 
     GPIO_InitTypeDef GpioInit;
+    // PC14: Pin 2
+    // PC15: Pin 3
     GpioInit.Pin       = GPIO_PIN_14 | GPIO_PIN_15;
     GpioInit.Mode      = GPIO_MODE_OUTPUT_PP;
     GpioInit.Pull      = GPIO_NOPULL;
@@ -40,6 +42,8 @@ void platform_init(void) {
 
 void init_uart(void) {
     GPIO_InitTypeDef GpioInit;
+    // PA9: Pin 19, USART1_TX
+    // PA10: Pin 20, USART_RX
     GpioInit.Pin       = GPIO_PIN_9 | GPIO_PIN_10;
     GpioInit.Mode      = GPIO_MODE_AF_PP;
     GpioInit.Pull      = GPIO_PULLUP;
@@ -61,6 +65,7 @@ void init_uart(void) {
 
 void trigger_setup(void) {
     GPIO_InitTypeDef GpioInit;
+    // PA12: Pin 22
     GpioInit.Pin       = GPIO_PIN_12;
     GpioInit.Mode      = GPIO_MODE_OUTPUT_PP;
     GpioInit.Pull      = GPIO_NOPULL;
