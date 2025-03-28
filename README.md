@@ -27,7 +27,7 @@ cp hal/stm32l0/Makefile.stm32l0 hal/stm32f4/Makefile.stm32f4
 vim hal/stm32f4/Makefile.stm32f4
 ```
 
-- Copy a `LinkerScript.ld` from the suitable `STM32CubeF4` repository, for example:
+- Copy a `LinkerScript.ld` from the suitable `STM32CubeF4` repository, or use a `LinkerScript.ld` from `hal/stm32l0` as a template and change the memory layout (should be ok for most cases). Modify if needed. For example:
 ```bash
 cd Desktop
 git clone https://github.com/STMicroelectronics/STM32CubeF4.git
@@ -35,6 +35,8 @@ cp ./Projects/STM32F429I-Discovery/Templates_LL/STM32CubeIDE/STM32F429ZITX_FLASH
 ```
 
 - Copy and modify the linker script if needed, for example for RAM execution. Remove the `(READONLY)` keywords if needed.
+
+- Copying a linker script blindly could fail, if the program should be executed solely in RAM. Keep attention that addresses from FLASH do not occur, otherwise execution could fail.
 
 - Copy a `stm32f4xx_hal_conf.h ` file from the suitable `STM32CubeF4` repository, for example:
 ```bash

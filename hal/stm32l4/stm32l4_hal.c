@@ -71,13 +71,16 @@ void trigger_setup(void) {
     GpioInit.Pull      = GPIO_NOPULL;
     GpioInit.Speed     = GPIO_SPEED_FREQ_HIGH;
     HAL_GPIO_Init(GPIOA, &GpioInit);
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_12, RESET);
 }
 
 void trigger_high(void) {
+    // Pin 22
     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_12, SET);
 }
 
 void trigger_low(void) {
+    // Pin 22
     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_12, RESET);
 }
 

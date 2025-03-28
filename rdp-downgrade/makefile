@@ -30,17 +30,29 @@
 
 # choose platform
 # STM32L051
-FAMILY = STM32L0
-CHIP = STM32L051
+#FAMILY = STM32L0
+#CHIP = STM32L051
+
+# STM32L422
+FAMILY = STM32L4
+CHIP = STM32L422
 
 # Target file name (without extension).
 # This is the name of the compiled .hex file.
 TARGET = rdp-downgrade
 EXECTYPE = RAM
+CDEFS += -DUSER_VECT_TAB_ADDRESS -DVECT_TAB_SRAM
+CPPDEFS += -DUSER_VECT_TAB_ADDRESS -DVECT_TAB_SRAM
 
 # List C source files here.
 # Header files (.h) are automatically pulled in.
-SRC += rdp-downgrade.c stm32l0xx_hal_flash.c stm32l0xx_hal_flash_ex.c printf.c
+SRC += rdp-downgrade.c printf.c
+ifeq ($(FAMILY),STM32L0)
+	SRC += stm32l0xx_hal_flash_ex.c stm32l0xx_hal_flash.c
+else ifeq ($(FAMILY),STM32L4)
+	OPENOCD_CONFIG = target/stm32l4x.cfg
+	SRC += stm32l4xx_hal_flash_ex.c stm32l4xx_hal_flash.c
+endif
 
 # -----------------------------------------------------------------------------
 

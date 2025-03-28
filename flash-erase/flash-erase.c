@@ -72,7 +72,7 @@ int main(void) {
 
     // toggle status leds
     led_ok(0);
-    led_error(1);
+    led_error(0);
 
     printf1("executing flash-erase\r\n");
     perform_flash_erase();
