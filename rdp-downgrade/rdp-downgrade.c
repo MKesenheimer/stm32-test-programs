@@ -82,9 +82,6 @@ static HAL_StatusTypeDef FLASH_OB_RDPConfig(uint8_t OB_RDP) {
 
 #ifdef STM32L4
 static HAL_StatusTypeDef FLASH_OB_RDPConfig(uint32_t RDPLevel) {
-    /* open glitching window */
-    led_error(1);
-    
     /* init */
     HAL_StatusTypeDef status;
 
@@ -95,8 +92,14 @@ static HAL_StatusTypeDef FLASH_OB_RDPConfig(uint32_t RDPLevel) {
         /* Configure the RDP level in the option bytes register */
         MODIFY_REG(FLASH->OPTR, FLASH_OPTR_RDP, RDPLevel);
 
-        /* Set OPTSTRT Bit */
+        /* open glitching window */
+        led_error(1);
+
+        /* Set OPTSTRT Bit: start option byte programming */
         SET_BIT(FLASH->CR, FLASH_CR_OPTSTRT);
+
+        /* close glitching window */
+        led_error(0);
 
         /* Wait for last operation to be completed */
         status = FLASH_WaitForLastOperation((uint32_t)FLASH_TIMEOUT_VALUE);
@@ -104,9 +107,6 @@ static HAL_StatusTypeDef FLASH_OB_RDPConfig(uint32_t RDPLevel) {
         /* If the option byte program operation is completed, disable the OPTSTRT Bit */
         CLEAR_BIT(FLASH->CR, FLASH_CR_OPTSTRT);
     }
-
-    /* close glitching window */
-    led_error(0);
 
     /* Return the Read protection operation Status */
     return status;
@@ -137,9 +137,9 @@ void flash_set_rdp(uint8_t rdp_level) {
     //led_error(1);
     HAL_StatusTypeDef status2 = HAL_FLASH_OB_Unlock();
     //led_error(0);
-    led_error(1);
+    //led_error(1);
     HAL_StatusTypeDef status3 = FLASH_OB_RDPConfig(rdp_level);
-    led_error(0);
+    //led_error(0);
     //led_error(1);
     HAL_StatusTypeDef status4 = HAL_FLASH_Lock();
     //led_error(0);
@@ -190,6 +190,21 @@ void flash_erase(void) {
 #endif
 }
 
+void write_to_flash_address(void) {
+    uint32_t address = 0x08000001;
+
+    HAL_StatusTypeDef status1 = HAL_FLASH_Unlock();
+
+    led_error(1);
+    //SET_BIT(FLASH->PECR, FLASH_PECR_ERASE);
+    //SET_BIT(FLASH->PECR, FLASH_PECR_PROG);
+    for (uint16_t i = 0; i < 256; ++i)
+        *(__IO uint32_t *)(uint32_t)(address + i) = 0xdeadbeef;
+    led_error(0);
+
+    HAL_StatusTypeDef status3 = HAL_FLASH_Lock();
+}
+
 int main(void) {
     platform_init();
 
@@ -221,5 +236,9 @@ int main(void) {
 
 #if 0
     flash_erase();
+#endif
+
+#if 0
+    write_to_flash_address();
 #endif
 }

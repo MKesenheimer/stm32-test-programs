@@ -30,16 +30,16 @@
 
 # choose platform
 # STM32L051
-#FAMILY = STM32L0
-#CHIP = STM32L051
+FAMILY = STM32L0
+CHIP = STM32L051
 
 # STM32F429
 #FAMILY = STM32F4
 #CHIP = STM32F429
 
 # STM32L422
-FAMILY = STM32L4
-CHIP = STM32L422
+#FAMILY = STM32L4
+#CHIP = STM32L422
 
 # Target file name (without extension).
 # This is the name of the compiled .hex file.
