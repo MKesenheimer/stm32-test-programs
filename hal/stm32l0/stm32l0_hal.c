@@ -9,7 +9,6 @@
 
 UART_HandleTypeDef UartHandle;
 
-// TODO: can probably be deleted
 // Change system clock to 32 MHz using internal 16 MHz R/C oscillator
 void init_clock() {
     // Because the debugger switches PLL on, we may need to switch
@@ -38,7 +37,7 @@ void init_clock() {
 
     // 32 MHz using the 16 MHz HSI oscillator multiply by 4 divide by 2
     WRITE_REG(RCC->CFGR, RCC_CFGR_PLLSRC_HSI + RCC_CFGR_PLLMUL4 + RCC_CFGR_PLLDIV2);
-
+    
     // Enable PLL
     SET_BIT(RCC->CR, RCC_CR_PLLON);
 
@@ -55,12 +54,41 @@ void init_clock() {
     CLEAR_BIT(RCC->CR, RCC_CR_MSION);
 }
 
+// Change system clock to the default clock source
+void default_clock() {
+    // Because the debugger switches PLL on, we may need to switch
+    // back to the HSI oscillator before we can configure the PLL
+
+    // Enable HSI oscillator
+    SET_BIT(RCC->CR, RCC_CR_MSION);
+
+    // Wait until MSI oscillator is ready
+    while(!READ_BIT(RCC->CR, RCC_CR_MSIRDY)) {}
+
+    // Range 5 = 2.097 MHz
+    MODIFY_REG(RCC->ICSCR, RCC_ICSCR_MSIRANGE, RCC_ICSCR_MSIRANGE_5);
+
+    // Switch to MSI oscillator
+    MODIFY_REG(RCC->CFGR, RCC_CFGR_SW, RCC_CFGR_SW_MSI);
+    
+    // Wait until the switch is done
+    while ((RCC->CFGR & RCC_CFGR_SWS_Msk) != RCC_CFGR_SWS_MSI) {}
+
+    // Update variable
+    SystemCoreClock = 2097000;
+
+    // Switch the HSI oscillator and PLL off
+    CLEAR_BIT(RCC->CR, RCC_CR_HSION);
+    CLEAR_BIT(RCC->CR, RCC_CR_PLLON);
+}
+
 void platform_init(void) {
 #if (__FPU_PRESENT == 1) && (__FPU_USED == 1)
     SCB->CPACR |= ((3UL << 20U)|(3UL << 22U));  /* set CP10 and CP11 Full Access */
 #endif
 
     //init_clock();
+    default_clock();
 
     // LED Pins init
     __HAL_RCC_GPIOC_CLK_ENABLE(); 

@@ -113,6 +113,24 @@ void printf1(const char *format, ...) {
                     }
                     break;
                 }
+                case 'x': { // Hexadecimal
+                    unsigned int num = va_arg(args, unsigned int);
+                    char hexbuf[8];
+                    int i = 0;
+                    if (num == 0) {
+                        putch('0');
+                    } else {
+                        while (num > 0 && i < 8) {
+                            int digit = num & 0xF;
+                            hexbuf[i++] = (digit < 10) ? ('0' + digit) : ('a' + digit - 10);
+                            num >>= 4;
+                        }
+                        while (i--) {
+                            putch(hexbuf[i]);
+                        }
+                    }
+                    break;
+                }
                 default:
                     putch('%');
                     putch(*formatsub);
