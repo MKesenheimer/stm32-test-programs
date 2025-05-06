@@ -86,7 +86,7 @@ HAL_StatusTypeDef HAL_FLASHEx_OB_SET_PCROP(uint32_t pcrop_config) {
     optiontmp2 = (uint16_t)(pcrop_config | optiontmp); 
     
     /* calculate the option byte to write */
-    tmp1 = (uint16_t)(~(optiontmp2 ));
+    tmp1 = (uint16_t)(~(optiontmp2));
     tmp2 = (uint32_t)(((uint32_t)((uint32_t)(tmp1) << 16U)) | ((uint32_t)optiontmp2));
            
     /* Clean the error context */
@@ -200,6 +200,8 @@ uint8_t get_rdp_level() {
 
 void flash_set_rdp(uint8_t rdp_level) {
     __disable_irq();
+    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_OPTVERR);
+
     //led_error(1);
     HAL_StatusTypeDef status1 = HAL_FLASH_Unlock();
     //led_error(0);
@@ -260,8 +262,11 @@ void flash_erase(void) {
 }
 
 void write_to_flash_address(uint32_t address, uint32_t value) {
+    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_OPTVERR);
+
     HAL_StatusTypeDef status1 = HAL_FLASH_Unlock();
     HAL_StatusTypeDef status2 = HAL_FLASH_OB_Unlock();
+
     /*CLEAR_BIT(FLASH->SR, FLASH_FLAG_BSY);
     CLEAR_BIT(FLASH->SR, FLASH_FLAG_EOP);
     CLEAR_BIT(FLASH->SR, FLASH_FLAG_WRPERR);
@@ -270,13 +275,14 @@ void write_to_flash_address(uint32_t address, uint32_t value) {
     //OB->WRP01 = 0xffff0000;
     //uint32_t wrp01 = (uint32_t)(OB->WRP01);
     //uint32_t rdp = (uint32_t)(OB->RDP);
-    
+
     HAL_StatusTypeDef status3 = FLASH_WaitForLastOperation(FLASH_TIMEOUT_VALUE);
     uint32_t read1 = *(__IO uint32_t *)(uint32_t)(address);
 
     led_error(1);
     //SET_BIT(FLASH->PECR, FLASH_PECR_ERASE);
     //SET_BIT(FLASH->PECR, FLASH_PECR_PROG);
+    CLEAR_BIT(FLASH->PECR, FLASH_PECR_PELOCK);
     *(__IO uint32_t *)(uint32_t)(address) = value;
     led_error(0);
     
@@ -362,9 +368,22 @@ int main(void) {
 #if 0
     // configure internal clock with ICSCR register (0x40021004)
     // original value of target: 0x0072b087
-    // value if fresh MCU:       0x0059B04C
-    //write_to_flash_address(0x40022020, 0x00);
-    //write_to_flash_address(0x40022080, 0x00);
-    write_to_flash_address(0x40021004, 0x0059B04C);
+    // value for fresh MCU:       0x0059B04C
+    write_to_flash_address(0x40021004, 0x0059B04C); // ICSCR register - clock config
+    //write_to_flash_address(0x40022020, 0x00); // WRPROT1 - write protection (read-only)
+    //write_to_flash_address(0x40022080, 0x00); // WRPROT2 - write protection (read-only)
+    //write_to_flash_address(0x4002201C, 0x807000BB); // OPTR register (0x807000BB -> RDPROT = 0x0, WPRMOD = 0, BOR_LEV = 0x0 WDG_SW = 1, nRST_STOP = 1, nRST_STDBY = 1, BFB2 = 0, nBOOT1 = 1)
+#endif
+
+#if 0
+    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_OPTVERR);
+    HAL_StatusTypeDef status = HAL_FLASH_Unlock();
+    printf1("flash unlock status: %d\r\n", status);
+    status = FLASH_WaitForLastOperation(FLASH_TIMEOUT_VALUE);
+    printf1("flash wait for last operation status: %d\r\n", status);
+    status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, 0x40021004, 0x0059B04C);
+    printf1("flash program status: %d\r\n", status);
+    uint32_t read2 = *(__IO uint32_t *)(uint32_t)(0x40021004);
+    printf1("modified value at address 0x%x: 0x%x\r\n", 0x40021004, read2);
 #endif
 }
