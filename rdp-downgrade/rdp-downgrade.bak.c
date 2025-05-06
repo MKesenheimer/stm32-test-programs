@@ -107,9 +107,6 @@ HAL_StatusTypeDef HAL_FLASHEx_OB_SET_PCROP(uint32_t pcrop_config) {
 // copied from stm32l0xx_hal_flash_ex.c (private function)
 extern FLASH_ProcessTypeDef pFlash;
 static HAL_StatusTypeDef FLASH_OB_RDPConfig(uint8_t OB_RDP) {
-    /* open glitching window */
-    led_error(1);
-
     /* init */
     HAL_StatusTypeDef status = HAL_OK;
     uint32_t tmp1 = 0U, tmp2 = 0U, tmp3 = 0U;
@@ -133,16 +130,19 @@ static HAL_StatusTypeDef FLASH_OB_RDPConfig(uint8_t OB_RDP) {
         /* Clean the error context */
         pFlash.ErrorCode = HAL_FLASH_ERROR_NONE;
 
+        /* open glitching window */
+        led_error(1);
+
         /* program read protection level */
         OB->RDP = tmp2;
 
         /* Wait for last operation to be completed */
         status = FLASH_WaitForLastOperation(FLASH_TIMEOUT_VALUE);
         //printf1("flash wait for last operation status: %d\r\n", status);
-    }
 
-    /* close glitching window */
-    led_error(0);
+        /* close glitching window */
+        led_error(0);
+    }
 
     /* Return the Read protection operation Status */
     return status;

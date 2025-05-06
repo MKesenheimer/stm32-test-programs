@@ -104,5 +104,5 @@ char getch(void) {
 
 void putch(char c) {
     uint8_t d = c;
-    HAL_UART_Transmit(&UartHandle,  &d, 1, 5000);
+    HAL_UART_Transmit(&UartHandle, &d, 1, 5000);
 }

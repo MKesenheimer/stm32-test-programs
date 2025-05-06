@@ -8,6 +8,7 @@
 #include "stm32l0xx_hal_cryp.h"
 
 UART_HandleTypeDef UartHandle;
+DMA_HandleTypeDef DmaHandle;
 
 // Change system clock to 32 MHz using internal 16 MHz R/C oscillator
 void init_clock() {
@@ -124,8 +125,24 @@ void init_uart(void) {
     UartHandle.Init.Parity     = UART_PARITY_NONE;
     UartHandle.Init.HwFlowCtl  = UART_HWCONTROL_NONE;
     UartHandle.Init.Mode       = UART_MODE_TX_RX;
+    //UartHandle.Init.OverSampling = UART_OVERSAMPLING_16;
     __USART1_CLK_ENABLE();
     HAL_UART_Init(&UartHandle);
+}
+
+void init_dma(void) {
+    // Example for USART on DMA1_Channel2
+    DmaHandle.Instance = DMA1_Channel2;
+    DmaHandle.Init.Direction = DMA_MEMORY_TO_PERIPH;
+    DmaHandle.Init.PeriphInc = DMA_PINC_DISABLE;
+    DmaHandle.Init.MemInc = DMA_MINC_ENABLE;
+    DmaHandle.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+    DmaHandle.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+    DmaHandle.Init.Mode = DMA_NORMAL;
+    DmaHandle.Init.Priority = DMA_PRIORITY_LOW;
+    __DMA1_CLK_ENABLE();
+    HAL_DMA_Init(&DmaHandle);
+    __HAL_LINKDMA(&UartHandle, hdmatx, DmaHandle);
 }
 
 void trigger_setup(void) {
@@ -165,6 +182,10 @@ char getch(void) {
 }
 
 void putch(char c) {
-    uint8_t d  = c;
-    HAL_UART_Transmit(&UartHandle,  &d, 1, 5000);
+    uint8_t d = c;
+    HAL_UART_Transmit(&UartHandle, &d, 1, 5000);
+}
+
+void uart_tx_dma(const uint8_t *address, uint16_t size) {
+    HAL_UART_Transmit_DMA(&UartHandle, address, size);
 }
