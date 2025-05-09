@@ -94,7 +94,7 @@ HAL_StatusTypeDef HAL_FLASHEx_OB_SET_PCROP(uint32_t pcrop_config) {
 
     /* program PCRop */
     printf1("rdp value to program: %x\r\n", tmp2);
-    //OB->RDP = tmp2;
+    OB->RDP = tmp2;
 
     /* Wait for last operation to be completed */
     status = FLASH_WaitForLastOperation(FLASH_TIMEOUT_VALUE);
@@ -107,9 +107,6 @@ HAL_StatusTypeDef HAL_FLASHEx_OB_SET_PCROP(uint32_t pcrop_config) {
 // copied from stm32l0xx_hal_flash_ex.c (private function)
 extern FLASH_ProcessTypeDef pFlash;
 static HAL_StatusTypeDef FLASH_OB_RDPConfig(uint8_t OB_RDP) {
-    /* open glitching window */
-    led_error(1);
-
     /* init */
     HAL_StatusTypeDef status = HAL_OK;
     uint32_t tmp1 = 0U, tmp2 = 0U, tmp3 = 0U;
@@ -133,18 +130,21 @@ static HAL_StatusTypeDef FLASH_OB_RDPConfig(uint8_t OB_RDP) {
         /* Clean the error context */
         pFlash.ErrorCode = HAL_FLASH_ERROR_NONE;
 
+        /* open glitching window */
+        led_error(1);
+
         /* program read protection level */
         OB->RDP = tmp2;
 
         /* Wait for last operation to be completed */
         status = FLASH_WaitForLastOperation(FLASH_TIMEOUT_VALUE);
         //printf1("flash wait for last operation status: %d\r\n", status);
+
+        /* close glitching window */
+        led_error(0);
     }
 
-    /* close glitching window */
-    led_error(0);
-
-    /* Return the Read protection operation Status */
+    /* Return the Read protection operation status */
     return status;
 }
 #endif
@@ -201,6 +201,7 @@ uint8_t get_rdp_level() {
 void flash_set_rdp(uint8_t rdp_level) {
     __disable_irq();
     __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_OPTVERR);
+    //CLEAR_BIT(FLASH->PECR, FLASH_PECR_PELOCK);
 
     //led_error(1);
     HAL_StatusTypeDef status1 = HAL_FLASH_Unlock();
@@ -282,7 +283,7 @@ void write_to_flash_address(uint32_t address, uint32_t value) {
     led_error(1);
     //SET_BIT(FLASH->PECR, FLASH_PECR_ERASE);
     //SET_BIT(FLASH->PECR, FLASH_PECR_PROG);
-    CLEAR_BIT(FLASH->PECR, FLASH_PECR_PELOCK);
+    //CLEAR_BIT(FLASH->PECR, FLASH_PECR_PELOCK);
     *(__IO uint32_t *)(uint32_t)(address) = value;
     led_error(0);
     
@@ -318,6 +319,14 @@ void write_to_flash_address(uint32_t address, uint32_t value) {
 #endif
 }
 
+void print_cpu_freq(void) {
+    //RCC_ClkInitTypeDef clkconfig;
+    //uint32_t flashLatency;
+    //HAL_RCC_GetClockConfig(&clkconfig, &flashLatency);
+    uint32_t sysclk = HAL_RCC_GetSysClockFreq();
+    printf1("System Clock Frequency: %d Hz\r\n", sysclk);
+}
+
 int main(void) {
     platform_init();
 
@@ -330,6 +339,7 @@ int main(void) {
     /* uart communication */
     init_uart();
     printf1("\r\nProgram start\r\n");
+    //print_cpu_freq();
 
     /* sleep */
     uint32_t rounds = 5;
