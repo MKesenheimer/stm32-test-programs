@@ -92,15 +92,15 @@ void platform_init(void) {
     default_clock();
 
     // LED Pins init
-    __HAL_RCC_GPIOC_CLK_ENABLE(); 
+    __HAL_RCC_GPIOB_CLK_ENABLE(); 
     GPIO_InitTypeDef GpioInit;
-    GpioInit.Pin       = GPIO_PIN_14 | GPIO_PIN_15;
+    GpioInit.Pin       = GPIO_PIN_0 | GPIO_PIN_1;
     GpioInit.Mode      = GPIO_MODE_OUTPUT_PP;
     GpioInit.Pull      = GPIO_NOPULL;
     GpioInit.Speed     = GPIO_SPEED_FREQ_HIGH;
-    HAL_GPIO_Init(GPIOC, &GpioInit);
-    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_14, RESET);
-    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_15, RESET);
+    HAL_GPIO_Init(GPIOB, &GpioInit);
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, RESET);
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, RESET);
 
     //SysTick interrupt will cause power trace noise - it's also re-enabled elsewhere,
     //so we just disable global interrupts. Re-enable this for more interesting work.
@@ -146,31 +146,45 @@ void init_dma(void) {
 }
 
 void trigger_setup(void) {
+    __HAL_RCC_GPIOA_CLK_ENABLE();
     GPIO_InitTypeDef GpioInit;
-    GpioInit.Pin       = GPIO_PIN_12;
+    GpioInit.Pin       = GPIO_PIN_11 | GPIO_PIN_12;
     GpioInit.Mode      = GPIO_MODE_OUTPUT_PP;
     GpioInit.Pull      = GPIO_NOPULL;
     GpioInit.Speed     = GPIO_SPEED_FREQ_HIGH;
     HAL_GPIO_Init(GPIOA, &GpioInit);
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, RESET);
     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_12, RESET);
 }
 
-void trigger_high(void) {
+void trigger0_high(void) {
+    // Pin 21
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, SET);
+}
+
+void trigger0_low(void) {
+    // Pin 21
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, RESET);
+}
+
+void trigger1_high(void) {
+    // Pin 22
     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_12, SET);
 }
 
-void trigger_low(void) {
+void trigger1_low(void) {
+    // Pin 22
     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_12, RESET);
 }
 
 void led_error(int val) {
-    // Pin 2
-    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_14, val);
+    // Pin 14
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, val);
 }
 
 void led_ok(int val) {
-    // Pin 3
-    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_15, val);
+    // Pin 15
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, val);
 }
 
 char getch(void) {

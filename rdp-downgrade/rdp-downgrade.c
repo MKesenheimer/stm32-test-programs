@@ -131,7 +131,7 @@ static HAL_StatusTypeDef FLASH_OB_RDPConfig(uint8_t OB_RDP) {
         pFlash.ErrorCode = HAL_FLASH_ERROR_NONE;
 
         /* open glitching window */
-        led_error(1);
+        trigger0_high();
 
         /* program read protection level */
         OB->RDP = tmp2;
@@ -141,7 +141,7 @@ static HAL_StatusTypeDef FLASH_OB_RDPConfig(uint8_t OB_RDP) {
         //printf1("flash wait for last operation status: %d\r\n", status);
 
         /* close glitching window */
-        led_error(0);
+        trigger0_low();
     }
 
     /* Return the Read protection operation status */
@@ -162,7 +162,7 @@ static HAL_StatusTypeDef FLASH_OB_RDPConfig(uint32_t RDPLevel) {
         MODIFY_REG(FLASH->OPTR, FLASH_OPTR_RDP, RDPLevel);
 
         /* open glitching window */
-        led_error(1);
+        trigger0_high();
 
         /* Set OPTSTRT Bit: start option byte programming */
         SET_BIT(FLASH->CR, FLASH_CR_OPTSTRT);
@@ -171,7 +171,7 @@ static HAL_StatusTypeDef FLASH_OB_RDPConfig(uint32_t RDPLevel) {
         status = FLASH_WaitForLastOperation((uint32_t)FLASH_TIMEOUT_VALUE);
 
         /* close glitching window */
-        led_error(0);
+        trigger0_low();
 
         /* If the option byte program operation is completed, disable the OPTSTRT Bit */
         CLEAR_BIT(FLASH->CR, FLASH_CR_OPTSTRT);
@@ -203,18 +203,18 @@ void flash_set_rdp(uint8_t rdp_level) {
     __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_OPTVERR);
     //CLEAR_BIT(FLASH->PECR, FLASH_PECR_PELOCK);
 
-    //led_error(1);
+    //trigger1_high();
     HAL_StatusTypeDef status1 = HAL_FLASH_Unlock();
-    //led_error(0);
-    //led_error(1);
+    //trigger1_low();
+    //trigger1_high();
     HAL_StatusTypeDef status2 = HAL_FLASH_OB_Unlock();
-    //led_error(0);
-    //led_error(1);
+    //trigger1_low();
+    trigger1_high();
     HAL_StatusTypeDef status3 = FLASH_OB_RDPConfig(rdp_level);
-    //led_error(0);
-    //led_error(1);
+    trigger1_low();
+    //trigger1_high();
     HAL_StatusTypeDef status4 = HAL_FLASH_Lock();
-    //led_error(0);
+    //trigger1_low();
     __enable_irq();
 
 #if 1
@@ -244,15 +244,15 @@ void flash_erase(void) {
     erase_init.Banks = 1;
 #endif
 
-    //led_error(1);
+    //trigger1_high();
     HAL_StatusTypeDef status1 = HAL_FLASH_Unlock();
-    //led_error(0);
-    led_error(1);
+    //trigger1_low();
+    trigger1_high();
     HAL_StatusTypeDef status2 = HAL_FLASHEx_Erase(&erase_init, &page_error);
-    led_error(0);
-    //led_error(1);
+    trigger1_low();
+    //trigger1_high();
     HAL_StatusTypeDef status3 = HAL_FLASH_Lock();
-    //led_error(0);
+    //trigger1_low();
     __enable_irq();
 
 #if 1
@@ -280,12 +280,12 @@ void write_to_flash_address(uint32_t address, uint32_t value) {
     HAL_StatusTypeDef status3 = FLASH_WaitForLastOperation(FLASH_TIMEOUT_VALUE);
     uint32_t read1 = *(__IO uint32_t *)(uint32_t)(address);
 
-    led_error(1);
+    trigger1_high();
     //SET_BIT(FLASH->PECR, FLASH_PECR_ERASE);
     //SET_BIT(FLASH->PECR, FLASH_PECR_PROG);
     //CLEAR_BIT(FLASH->PECR, FLASH_PECR_PELOCK);
     *(__IO uint32_t *)(uint32_t)(address) = value;
-    led_error(0);
+    trigger1_low();
     
     HAL_StatusTypeDef status4 = FLASH_WaitForLastOperation(FLASH_TIMEOUT_VALUE);
 
@@ -329,10 +329,12 @@ void print_cpu_freq(void) {
 
 int main(void) {
     platform_init();
+    trigger_setup();
 
-    // Trigger = A12, Pin 22
-    // LED OK = C15: Pin 3
-    // LED Error = C14: Pin 2
+    // Trigger0 = A11, Pin 21
+    // Trigger1 = A12, Pin 22
+    // LED OK = B1: Pin 15
+    // LED Error = B0: Pin 14
     // RX = A10, Pin 20
     // TX = A9, Pin 19
 
