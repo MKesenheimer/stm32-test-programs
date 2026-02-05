@@ -339,6 +339,7 @@ int main(void) {
     // TX = A9, Pin 19
 
     /* uart communication */
+    led_ok(1);
     init_uart();
     printf1("\r\nProgram start\r\n");
     //print_cpu_freq();
