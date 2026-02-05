@@ -9,3 +9,4 @@
 *.d
 *.eep
 .DS_Store
+struct-analysis

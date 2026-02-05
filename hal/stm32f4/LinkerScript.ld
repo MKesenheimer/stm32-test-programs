@@ -87,6 +87,11 @@ SECTIONS
     . = ALIGN(4);
   } >ROM
 
+  .storage_rom 0x08008110 :
+  {
+    KEEP(*(.storage_rom))
+  } >ROM
+
   .ARM.extab : /* The READONLY keyword is only supported in GCC11 and later, remove it if using GCC10 or earlier. */
   {
     . = ALIGN(4);
