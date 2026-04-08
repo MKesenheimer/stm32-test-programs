@@ -1,86 +1,59 @@
 
-#include "stm32l0_hal.h"
-//#include "stm32l562xx.h"
-#include "stm32l0xx_hal_rcc.h"
-#include "stm32l0xx_hal_gpio.h"
-#include "stm32l0xx_hal_dma.h"
-#include "stm32l0xx_hal_uart.h"
-#include "stm32l0xx_hal_cryp.h"
+#include "stm32g0_hal.h"
+#include "stm32g0xx_hal_rcc.h"
+#include "stm32g0xx_hal_pwr_ex.h"
+#include "stm32g0xx_hal_gpio.h"
+#include "stm32g0xx_hal_dma.h"
+#include "stm32g0xx_hal_uart.h"
+#include "stm32g0xx_hal_cryp.h"
+#include "stm32g0xx_hal_flash.h"
 
 UART_HandleTypeDef UartHandle;
 DMA_HandleTypeDef DmaHandle;
 
-// Change system clock to 32 MHz using internal 16 MHz R/C oscillator
-void init_clock() {
-    // Because the debugger switches PLL on, we may need to switch
-    // back to the HSI oscillator before we can configure the PLL
-
-    // Enable HSI oscillator
-    SET_BIT(RCC->CR, RCC_CR_HSION);
-
-    // Wait until HSI oscillator is ready
-    while(!READ_BIT(RCC->CR, RCC_CR_HSIRDY)) {}
-
-    // Switch to HSI oscillator
-    MODIFY_REG(RCC->CFGR, RCC_CFGR_SW, RCC_CFGR_SW_HSI);
-
-    // Wait until the switch is done
-    while ((RCC->CFGR & RCC_CFGR_SWS_Msk) != RCC_CFGR_SWS_HSI) {}
-
-    // Disable the PLL
-    CLEAR_BIT(RCC->CR, RCC_CR_PLLON);
-
-    // Wait until the PLL is fully stopped
-    while(READ_BIT(RCC->CR, RCC_CR_PLLRDY)) {}
-    
-    // Flash latency 1 wait state
-    SET_BIT(FLASH->ACR, FLASH_ACR_LATENCY);
-
-    // 32 MHz using the 16 MHz HSI oscillator multiply by 4 divide by 2
-    WRITE_REG(RCC->CFGR, RCC_CFGR_PLLSRC_HSI + RCC_CFGR_PLLMUL4 + RCC_CFGR_PLLDIV2);
-    
-    // Enable PLL
-    SET_BIT(RCC->CR, RCC_CR_PLLON);
-
-    // Wait until PLL is ready
-    while(!READ_BIT(RCC->CR, RCC_CR_PLLRDY)) {}
-
-    // Select PLL as clock source
-    MODIFY_REG(RCC->CFGR, RCC_CFGR_SW, RCC_CFGR_SW_PLL);
-
-    // Update variable
-    SystemCoreClock = 32000000;
-
-    // Switch the MSI oscillator off
-    CLEAR_BIT(RCC->CR, RCC_CR_MSION);
+void Error_Handler(void) {
+  while(1) {
+    // add here custom error handling code
+  }
 }
 
-// Change system clock to the default clock source
-void default_clock() {
-    // Because the debugger switches PLL on, we may need to switch
-    // back to the HSI oscillator before we can configure the PLL
+// Change system clock to 32 MHz using internal 16 MHz R/C oscillator
+void init_clock() {
+    RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+    RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
-    // Enable HSI oscillator
-    SET_BIT(RCC->CR, RCC_CR_MSION);
+    /** Configure the main internal regulator output voltage
+    */
+    HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1);
 
-    // Wait until MSI oscillator is ready
-    while(!READ_BIT(RCC->CR, RCC_CR_MSIRDY)) {}
+    /** Initializes the RCC Oscillators according to the specified parameters
+    * in the RCC_OscInitTypeDef structure.
+    */
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+    RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+    RCC_OscInitStruct.HSIDiv = RCC_HSI_DIV1;
+    RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+    RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+    RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+    RCC_OscInitStruct.PLL.PLLM = RCC_PLLM_DIV1;
+    RCC_OscInitStruct.PLL.PLLN = 8;
+    RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV4;
+    //RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
+    RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+        //Error_Handler();
+    }
 
-    // Range 5 = 2.097 MHz
-    MODIFY_REG(RCC->ICSCR, RCC_ICSCR_MSIRANGE, RCC_ICSCR_MSIRANGE_5);
-
-    // Switch to MSI oscillator
-    MODIFY_REG(RCC->CFGR, RCC_CFGR_SW, RCC_CFGR_SW_MSI);
-    
-    // Wait until the switch is done
-    while ((RCC->CFGR & RCC_CFGR_SWS_Msk) != RCC_CFGR_SWS_MSI) {}
-
-    // Update variable
-    SystemCoreClock = 2097000;
-
-    // Switch the HSI oscillator and PLL off
-    CLEAR_BIT(RCC->CR, RCC_CR_HSION);
-    CLEAR_BIT(RCC->CR, RCC_CR_PLLON);
+    /** Initializes the CPU, AHB and APB buses clocks
+    */
+    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                                |RCC_CLOCKTYPE_PCLK1;
+    RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+    RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK) {
+        //Error_Handler();
+    }
 }
 
 void platform_init(void) {
@@ -88,8 +61,7 @@ void platform_init(void) {
     SCB->CPACR |= ((3UL << 20U)|(3UL << 22U));  /* set CP10 and CP11 Full Access */
 #endif
 
-    //init_clock();
-    default_clock();
+    init_clock();
 
     // LED Pins init
     __HAL_RCC_GPIOB_CLK_ENABLE(); 
@@ -110,13 +82,13 @@ void platform_init(void) {
 
 void init_uart(void) {
     GPIO_InitTypeDef GpioInit;
-    GpioInit.Pin       = GPIO_PIN_9 | GPIO_PIN_10;
+    GpioInit.Pin       = GPIO_PIN_6 | GPIO_PIN_7;
     GpioInit.Mode      = GPIO_MODE_AF_PP;
     GpioInit.Pull      = GPIO_PULLUP;
     GpioInit.Speed     = GPIO_SPEED_FREQ_HIGH;
     GpioInit.Alternate = GPIO_AF4_USART1;
     __GPIOA_CLK_ENABLE();
-    HAL_GPIO_Init(GPIOA, &GpioInit);
+    HAL_GPIO_Init(GPIOB, &GpioInit);
 
     UartHandle.Instance        = USART1;
     UartHandle.Init.BaudRate   = 115200;
@@ -148,33 +120,33 @@ void init_dma(void) {
 void trigger_setup(void) {
     __HAL_RCC_GPIOA_CLK_ENABLE();
     GPIO_InitTypeDef GpioInit;
-    GpioInit.Pin       = GPIO_PIN_11 | GPIO_PIN_12;
+    GpioInit.Pin       = GPIO_PIN_8 | GPIO_PIN_9;
     GpioInit.Mode      = GPIO_MODE_OUTPUT_PP;
     GpioInit.Pull      = GPIO_NOPULL;
     GpioInit.Speed     = GPIO_SPEED_FREQ_HIGH;
     HAL_GPIO_Init(GPIOA, &GpioInit);
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, RESET);
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_12, RESET);
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, RESET);
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, RESET);
 }
 
 void trigger0_high(void) {
     // Pin 21
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, SET);
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, SET);
 }
 
 void trigger0_low(void) {
     // Pin 21
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, RESET);
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, RESET);
 }
 
 void trigger1_high(void) {
     // Pin 22
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_12, SET);
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, SET);
 }
 
 void trigger1_low(void) {
     // Pin 22
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_12, RESET);
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, RESET);
 }
 
 void led_error(int val) {

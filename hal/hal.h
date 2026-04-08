@@ -22,5 +22,9 @@
 #include <stdint.h>
 
 void platform_init(void);
+void _nop_delay(uint32_t iterations);
+
+/* Delay in milliseconds using __NOP() loops */
+void delay_ms(uint32_t ms);
 
 #endif //HAL_H_

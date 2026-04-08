@@ -3604,9 +3604,11 @@ const unsigned char randvalues[LENGTH] = {
 };
 #endif
 
+
+
 int main(void) {
     platform_init();
-    
+
     // do something
     led_ok(1);
     led_error(0);
@@ -3622,6 +3624,16 @@ int main(void) {
     data[0] = (uint8_t) (data[1] + data[2] * data[3]);
     if ((data[0] & 0x01) == 0x01) {
         led_ok(0);
+    }
+#else
+    // Toggle led_ok every 1 second
+    while (1) {
+        led_ok(0);
+        led_error(1);
+        delay_ms(1);
+        led_ok(1);
+        led_error(0);
+        delay_ms(1);
     }
 #endif
 

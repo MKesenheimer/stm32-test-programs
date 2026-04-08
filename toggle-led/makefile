@@ -30,8 +30,8 @@
 
 # choose platform
 # STM32L051
-FAMILY = STM32L0
-CHIP = STM32L051
+#FAMILY = STM32L0
+#CHIP = STM32L051
 
 # STM32F429
 #FAMILY = STM32F4
@@ -40,6 +40,10 @@ CHIP = STM32L051
 # STM32L422
 #FAMILY = STM32L4
 #CHIP = STM32L422
+
+# STM32G030
+FAMILY = STM32G0
+CHIP = STM32G030
 
 # Target file name (without extension).
 # This is the name of the compiled .hex file.
@@ -53,6 +57,9 @@ ifeq ($(FAMILY),STM32L0)
 else ifeq ($(FAMILY),STM32L4)
 	OPENOCD_CONFIG = target/stm32l4x.cfg
 	SRC +=
+else ifeq ($(FAMILY),STM32G0)
+	OPENOCD_CONFIG = target/stm32g0x.cfg
+	SRC += stm32g0xx_hal_pwr_ex.c stm32g0xx_hal_cortex.c
 endif
 
 # -----------------------------------------------------------------------------

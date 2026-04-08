@@ -1,0 +1,41 @@
+VPATH += :$(HALPATH)/stm32g0
+VPATH += :$(HALPATH)/stm32g0/Src
+VPATH += :$(HALPATH)/cmsis/Source/Templates/gcc
+SRC += system_stm32g0xx.c \
+       stm32g0_hal.c \
+       stm32g0xx_hal.c \
+       stm32g0xx_hal_rcc.c \
+       stm32g0xx_hal_gpio.c \
+       stm32g0xx_hal_uart.c \
+
+EXTRAINCDIRS += $(HALPATH)/stm32g0 $(HALPATH)/stm32g0/Inc $(HALPATH)/stm32g0/Inc/Legacy $(HALPATH)/cmsis/Include $(HALPARENT)/CMSIS/CMSIS/Core/Include
+
+MCU_FLAGS = -mcpu=cortex-m0plus
+
+CDEFS += -DSTM32 -DDEBUG -D$(FAMILY) -D$(CHIP)xx -D$(CHIP) -DCHIP=$(CHIP)
+CPPDEFS += -DSTM32 -DDEBUG -D$(FAMILY) -D$(CHIP)xx -D$(CHIP) -DCHIP=$(CHIP)
+
+ASRC += startup_$(CHIP_LOWER)xx.s
+
+CC = arm-none-eabi-gcc
+OBJCOPY = arm-none-eabi-objcopy
+OBJDUMP = arm-none-eabi-objdump
+SIZE = arm-none-eabi-size
+AR = arm-none-eabi-ar rcs
+NM = arm-none-eabi-nm
+MCU_CLK = INT
+
+#Output Format = Binary for this target
+FORMAT = binary
+
+CFLAGS += -mthumb -fmessage-length=0 -ffunction-sections 
+CPPFLAGS += -mthumb -fmessage-length=0 -ffunction-sections 
+ASFLAGS += -mthumb -fmessage-length=0 -ffunction-sections
+
+ifeq ($(EXECTYPE),RAM)
+	EXECTYPEMSG = Assembling for execution in RAM.
+	LDFLAGS += --specs=nano.specs -T $(HALPATH)/LinkerScriptRam.ld -Wl,--gc-sections -lm
+else
+	EXECTYPEMSG = Assembling for execution in flash.
+	LDFLAGS += --specs=nano.specs -T $(HALPATH)/LinkerScript.ld -Wl,--gc-sections -lm
+endif

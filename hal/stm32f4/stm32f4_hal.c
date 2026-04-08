@@ -88,6 +88,36 @@ void led_ok(int val) {
     HAL_GPIO_WritePin(GPIOC, GPIO_PIN_15, val);
 }
 
+void _nop_delay(uint32_t iterations) {
+    while (iterations > 0) {
+        __NOP();
+        __NOP();
+        __NOP();
+        __NOP();
+        __NOP();
+        __NOP();
+        __NOP();
+        __NOP();
+        __NOP();
+        __NOP();
+        __NOP();
+        __NOP();
+        __NOP();
+        __NOP();
+        __NOP();
+        __NOP();
+        iterations--;
+    }
+}
+
+/* Delay in milliseconds using __NOP() loops.
+ * Based on default clock of 16 MHz (HSI). */
+void delay_ms(uint32_t ms) {
+    /* 16 MHz clock, each iteration ~10 cycles
+     * 16000000 / 10 = 1600000 loops per second = 1600 per ms */
+    _nop_delay(ms * 1600);
+}
+
 char getch(void) {
     uint8_t d;
     while (HAL_UART_Receive(&UartHandle, &d, 1, 50) != HAL_OK) {
